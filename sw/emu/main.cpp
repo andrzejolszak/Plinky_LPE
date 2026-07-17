@@ -1,3 +1,8 @@
+#if defined(_WIN32) || defined(__APPLE__)
+#define EMU
+#pragma warning(disable : 4244)
+#endif
+
 #include "main.h"
 
 #include <imgui.h>
@@ -13,7 +18,7 @@
 #include <thread>
 #include "pffft.h"
 #include <portaudio.h>
-#include "../Core/Src/config.h"
+// #include "../Core/Src/plinky/config.h"
 
 #ifdef _WIN32
 
@@ -53,10 +58,10 @@ extern "C" {
 		resetspistate();
 	}
 
-#include "../Core/Src/adc.h"
-#include "../Core/Src/wtenum.h"
-	extern const short wavetable[WT_LAST][WAVETABLE_SIZE ];
-}
+// #include "../Core/Src/plinky/adc.h"
+#include "../Core/Src/plinky/data/tables.h"
+    extern const short wavetable[WT_LAST][WAVETABLE_SIZE];
+    }
 
 static GLFWwindow* window;
 

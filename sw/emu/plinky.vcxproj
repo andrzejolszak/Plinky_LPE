@@ -102,7 +102,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>imgui;imgui/gl3w;imgui/glfw/include;portaudio/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\andrz\source\repos\Plinky_LPE\sw\Core\Inc;C:\Users\andrz\source\repos\Plinky_LPE\sw\Drivers\CMSIS\Include;C:\Users\andrz\source\repos\Plinky_LPE\sw\Drivers\STM32L4xx_HAL_Driver\Inc;C:\Users\andrz\source\repos\Plinky_LPE\sw\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\Core\Src\plinky;imgui;imgui/gl3w;imgui/glfw/include;portaudio/include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -145,8 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Core\Src\gfx.c" />
-    <ClCompile Include="..\Core\Src\plinky.c" />
+    <ClCompile Include="..\Core\Src\plinky\gfx\gfx.c" />
+    <ClCompile Include="..\Core\Src\plinky\plinky.c" />
     <ClCompile Include="imgui\gl3w\GL\gl3w.c" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -158,33 +158,31 @@
     <ClCompile Include="pffft.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Core\Src\adc.h" />
-    <ClInclude Include="..\core\src\arp.h" />
-    <ClInclude Include="..\Core\Src\audiointrin.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\adc_dac.h" />
+    <ClInclude Include="..\core\src\plinky\synth\arp.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\audio.h" />
     <ClInclude Include="..\Core\Src\calib.h" />
-    <ClInclude Include="..\Core\Src\codec.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\codec.h" />
     <ClInclude Include="..\Core\Src\core.h" />
-    <ClInclude Include="..\Core\Src\dac.h" />
     <ClInclude Include="..\core\src\edit.h" />
     <ClInclude Include="..\Core\Src\enums.h" />
     <ClInclude Include="..\Core\Src\flash.h" />
-    <ClInclude Include="..\Core\Src\fontdata.h" />
-    <ClInclude Include="..\Core\Src\gfx.h" />
-    <ClInclude Include="..\Core\Src\icons.h" />
-    <ClInclude Include="..\Core\Src\leds.h" />
-    <ClInclude Include="..\Core\Src\lfo.h" />
-    <ClInclude Include="..\Core\Src\logo.h" />
-    <ClInclude Include="..\Core\Src\oled.h" />
-    <ClInclude Include="..\Core\Src\params.h" />
-    <ClInclude Include="..\Core\Src\params_new.h" />
-    <ClInclude Include="..\Core\Src\params_old.h" />
+    <ClInclude Include="..\Core\Src\plinky\data\fonts.h" />
+    <ClInclude Include="..\Core\Src\plinky\gfx\gfx.h" />
+    <ClInclude Include="..\Core\Src\plinky\data\icons.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\leds.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\lfos.h" />
+    <ClInclude Include="..\Core\Src\plinky\data\logo.h" />
+    <ClInclude Include="..\Core\Src\plinky\gfx\oled\oled.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\params.h" />
     <ClInclude Include="..\Core\Src\rand.h" />
     <ClInclude Include="..\Core\Src\sigmoid.h" />
-    <ClInclude Include="..\Core\Src\spi.h" />
-    <ClInclude Include="..\Core\Src\tables.h" />
-    <ClInclude Include="..\Core\Src\touch.h" />
-    <ClInclude Include="..\core\src\ui.h" />
-    <ClInclude Include="..\Core\Src\wtenum.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\spi.h" />
+    <ClInclude Include="..\Core\Src\plinky\data\tables.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\touchstrips.h" />
+    <ClInclude Include="..\core\src\plinky\ui\led_viz.h" />
+    <ClInclude Include="..\core\src\plinky\ui\oled_viz.h" />
+    <ClInclude Include="..\core\src\plinky\ui\pad_actions.h" />
     <ClInclude Include="imgui\gl3w\GL\gl3w.h" />
     <ClInclude Include="imgui\gl3w\GL\glcorearb.h" />
     <ClInclude Include="imgui\imconfig.h" />

@@ -45,13 +45,13 @@
     <ClCompile Include="knob.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\Core\Src\plinky.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="pffft.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\Core\Src\gfx.c">
+    <ClCompile Include="..\Core\Src\plinky\gfx\gfx.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Core\Src\plinky\plinky.c">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,61 +86,10 @@
     <ClInclude Include="imgui\gl3w\GL\glcorearb.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="..\Core\Src\adc.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\audiointrin.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\Core\Src\calib.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\Core\Src\codec.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\Core\Src\core.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\dac.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\fontdata.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\gfx.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\icons.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\leds.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\lfo.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\logo.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\oled.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\params.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\spi.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\tables.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\touch.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\core\src\arp.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\core\src\ui.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\core\src\edit.h">
@@ -158,19 +107,64 @@
     <ClInclude Include="..\Core\Src\sigmoid.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\Core\Src\params_new.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\params_old.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Core\Src\wtenum.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="webusb.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\hardware\adc_dac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\src\plinky\synth\arp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\synth\audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\hardware\codec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\data\fonts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\gfx\gfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\data\icons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\hardware\leds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\synth\lfos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\data\logo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\gfx\oled\oled.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\hardware\params.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\hardware\spi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\data\tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\hardware\touchstrips.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\src\plinky\ui\led_viz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\src\plinky\ui\oled_viz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\src\plinky\ui\pad_actions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
