@@ -47,3 +47,13 @@ hw/plinky_front_osh/plinky_back_osh-backups/
 hw/plinky_front_osh/plinky_front_osh-backups/
 hw/testjig/testjig-backups/
 hw/testjig/*.svg
+
+/sw/emu/.vs/plinky
+/sw/emu/plinky/x64/Debug
+/sw/emu/wavetable/x64/Debug
+/sw/emu/x64/Debug
+/sw/plinkyfwpkg/x64/Debug
+/sw/emu/flashmcu.raw
+/sw/emu
+/.vs
+!/sw/emu/plinky_tests/*.bmp
