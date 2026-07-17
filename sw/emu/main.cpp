@@ -1,8 +1,3 @@
-#if defined(_WIN32) || defined(__APPLE__)
-#define EMU
-#pragma warning(disable : 4244)
-#endif
-
 #include "main.h"
 
 #include <imgui.h>
@@ -10,11 +5,15 @@
 #include "imgui_impl_opengl3.h"
 #include <GL/gl3w.h> // This example is using gl3w to access OpenGL functions (because it is small). You may use glew/glad/glLoadGen/etc. whatever already works for you.
 #include <GLFW/glfw3.h>
+
 #ifdef _WIN32
+#define EMU
+#pragma warning(disable : 4244)
 #include <shellscalingapi.h>
 #else
 #include <sys/stat.h>
 #endif
+
 #include <thread>
 #include "pffft.h"
 #include <portaudio.h>
