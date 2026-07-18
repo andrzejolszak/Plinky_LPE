@@ -1,9 +1,12 @@
 #include "codec.h"
 #include "memory.h"
 
+#ifndef EMU
 extern I2C_HandleTypeDef hi2c2;
 extern SAI_HandleTypeDef hsai_BlockB1;
 extern SAI_HandleTypeDef hsai_BlockA1;
+#endif
+
 void Error_Handler(void);
 
 #define I2C_TIMEOUT 20

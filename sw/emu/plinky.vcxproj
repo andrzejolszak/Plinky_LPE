@@ -104,7 +104,8 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;EMU;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\andrz\source\repos\Plinky_LPE\sw\Core\Src\plinky;imgui;imgui/gl3w;imgui/glfw/include;portaudio/include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -145,8 +146,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Core\Src\plinky\data\logo.c" />
+    <ClCompile Include="..\Core\Src\plinky\data\tables.c" />
     <ClCompile Include="..\Core\Src\plinky\gfx\gfx.c" />
+    <ClCompile Include="..\Core\Src\plinky\gfx\oled\oled.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\accelerometer.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\adc_dac.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\codec.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\encoder.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\expander.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\leds.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\memory.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\midi_sysex.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\spi.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\touchstrips.c" />
     <ClCompile Include="..\Core\Src\plinky\plinky.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\arp.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\audio.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\lfos.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\params.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\sampler.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\sequencer.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\synth.c" />
+    <ClCompile Include="..\Core\Src\plinky\synth\time.c" />
+    <ClCompile Include="..\Core\Src\plinky\ui\led_viz.c" />
+    <ClCompile Include="..\Core\Src\plinky\ui\oled_viz.c" />
+    <ClCompile Include="..\Core\Src\plinky\ui\pad_actions.c" />
+    <ClCompile Include="..\Core\Src\plinky\ui\settings_menu.c" />
     <ClCompile Include="imgui\gl3w\GL\gl3w.c" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -169,10 +195,11 @@
     <ClInclude Include="..\Core\Src\plinky\hardware\adc_dac.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\codec.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\encoder.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\expander.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\leds.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\memory.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\mem_defs.h" />
-    <ClInclude Include="..\Core\Src\plinky\hardware\midi.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\midi_sysex.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\sensor_defs.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\spi.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\touchstrips.h" />

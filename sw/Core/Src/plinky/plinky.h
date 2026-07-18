@@ -4,6 +4,19 @@
 #define FIRMWARE_VERSION "0.4.0"
 #define GOLDEN_CHECKSUM 0xb5a7228c
 
+#ifdef EMU
+float powerout; // squared power
+float gainhistoryrms[512];
+int ghi;
+float m_compressor;
+#define RVMASK 16383
+#define DLMASK 32767
+short delaybuf[DLMASK + 1];
+short reverbbuf[RVMASK + 1];
+int emupitchsense;
+int emugatesense;
+#endif
+
 typedef enum HardwareVersion {
 	HW_PLINKY,
 	HW_PLINKY_PLUS,

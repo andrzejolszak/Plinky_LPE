@@ -3,6 +3,9 @@
 
 #ifndef EMU
 #define __STATIC_FORCEINLINE __attribute__((always_inline)) static inline
+#define CORTEX
+#else
+#define __STATIC_FORCEINLINE static inline
 #endif
 
 #define RV_SIZE_MASK 16383
@@ -13,16 +16,28 @@
 
 __STATIC_FORCEINLINE
 u32 STEREOPACK(s16 l, s16 r) {
+#ifdef EMU
+	return ((u16)l) + (((u16)r) << 16);
+#else
 	s32 out;
 	asm("pkhbt %0, %1, %2, lsl #16" : "=r"(out) : "r"(l), "r"(r));
 	return out;
+#endif
 }
 
 __STATIC_FORCEINLINE
 s16 SATURATE16(s32 a) {
+#ifdef EMU
+	if (a < -32768)
+		a = -32768;
+	else if (a > 32767)
+		a = 32767;
+	return a;
+#else
 	s32 tmp;
 	asm("ssat %0, %1, %2" : "=r"(tmp) : "I"(16), "r"(a));
 	return tmp;
+#endif
 }
 
 __STATIC_FORCEINLINE
@@ -31,11 +46,17 @@ s16 LINEARINTERPDL(const s16* buf, int basei, int wobpos) { // read buf[basei-wo
 	wobpos &= 0xfff;
 	s16 a0 = buf[basei & DL_SIZE_MASK];
 	s16 a1 = buf[(basei - 1) & DL_SIZE_MASK];
+
+#ifdef EMU
+	// dual mul
+	return ((a0 * (0x1000 - wobpos) + a1 * wobpos)) >> 12;
+#else
 	s32 out;
 	u32 a = STEREOPACK(a1, a0);
 	u32 b = STEREOPACK(wobpos, 0x1000 - wobpos);
 	asm("smuad %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
 	return out >> 12;
+#endif
 }
 
 __STATIC_FORCEINLINE
@@ -58,16 +79,28 @@ u32 STEREOSCALE(u32 in, int scale) {
 
 __STATIC_FORCEINLINE
 u32 STEREOADDSAT(u32 a, u32 b) {
+#ifdef EMU
+	STEREOUNPACK(a);
+	STEREOUNPACK(b);
+	return STEREOPACK(SATURATE16(al + bl), SATURATE16(ar + br));
+#else
 	s32 out;
 	asm("qadd16 %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
 	return out;
+#endif
 }
 
 __STATIC_FORCEINLINE
 u32 STEREOADDAVERAGE(u32 a, u32 b) {
+#ifdef EMU
+	STEREOUNPACK(a);
+	STEREOUNPACK(b);
+	return STEREOPACK((al + bl) >> 1, (ar + br) >> 1);
+#else
 	s32 out;
 	asm("shadd16 %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
 	return out;
+#endif
 }
 
 __STATIC_FORCEINLINE
@@ -76,11 +109,15 @@ s16 LINEARINTERPRV(const s16* buf, int basei, int wobpos) { // read buf[basei-wo
 	wobpos &= 0xfff;
 	s16 a0 = buf[basei & RV_SIZE_MASK];
 	s16 a1 = buf[(basei - 1) & RV_SIZE_MASK];
+#ifdef EMU
+	return ((a0 * (0x1000 - wobpos) + a1 * wobpos)) >> 12;
+#else
 	s32 out;
 	u32 a = STEREOPACK(a1, a0);
 	u32 b = STEREOPACK(wobpos, 0x1000 - wobpos);
 	asm("smuad %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
 	return out >> 12;
+#endif
 }
 
 __STATIC_FORCEINLINE

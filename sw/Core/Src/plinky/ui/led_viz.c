@@ -91,7 +91,7 @@ static void draw_main_leds(void) {
 		int sp1 = (x < 7) ? cur_sample_info.splitpoints[x + 1] : cur_sample_info.samplelen;
 
 		// add root/blackout leds
-		u8 root_k[8] = {};
+		u8 root_k[8] = {0};
 		get_root_and_blackout_leds(x, root_k);
 
 		for (u8 y = 0; y < 8; ++y) {

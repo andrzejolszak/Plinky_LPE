@@ -7,7 +7,10 @@
 #include "synth/time.h"
 #include "ui/pad_actions.h"
 
-extern TSC_HandleTypeDef htsc;
+#ifndef EMU
+	extern TSC_HandleTypeDef htsc;
+#endif
+
 
 #define TOUCH_THRESHOLD 1000
 #define TOUCH_STABILITY_TICKS 9
@@ -442,7 +445,7 @@ void touch_calib(FlashCalibType flash_calib_type) {
 	memset(reading_calib, 0, sizeof(ReadingCalib) * NUM_TOUCH_READINGS);
 	s8 cur_pad[NUM_TOUCHSTRIPS];
 	memset(cur_pad, PADS_PER_STRIP - 1, sizeof(cur_pad));
-	u16 raw_pres_1back[NUM_TOUCH_READINGS] = {};
+	u16 raw_pres_1back[NUM_TOUCH_READINGS] = {0};
 	u8 cur_frame = touch_frame;
 	u8 readings_done = 0;
 	// display drawing
@@ -465,7 +468,11 @@ void touch_calib(FlashCalibType flash_calib_type) {
 
 		// wait for touchstrips to update
 		while (touch_frame == cur_frame)
-			__asm__ volatile("" ::: "memory");
+#ifndef EMU
+			__asm__ volatile("" ::: "memory")
+#endif
+			;
+
 		cur_frame = touch_frame;
 
 		// update the 18 calibration entries for their respective current steps

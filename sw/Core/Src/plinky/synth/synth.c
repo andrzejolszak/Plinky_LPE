@@ -111,7 +111,7 @@ static u16 pitch_at_note_with_midi_tuning(u8 note_number) {
 }
 
 static s8 string_oct(u8 string_id) {
-	static s8 oct[NUM_STRINGS] = {};
+	static s8 oct[NUM_STRINGS] = {0};
 	u8 mask = 1 << string_id;
 	if (!(string_oct_valid & mask)) {
 		oct[string_id] = param_index_multi(MP_OCT, string_id);
@@ -121,7 +121,7 @@ static s8 string_oct(u8 string_id) {
 }
 
 static Scale string_scale(u8 string_id) {
-	static Scale scale[NUM_STRINGS] = {};
+	static Scale scale[NUM_STRINGS] = {0};
 	u8 mask = 1 << string_id;
 	if (!(string_scale_valid & mask)) {
 		scale[string_id] = param_index_multi(MP_SCALE, string_id);
@@ -131,7 +131,7 @@ static Scale string_scale(u8 string_id) {
 }
 
 static u16 string_root_pitch(u8 string_id) {
-	static u16 root_pitch[NUM_STRINGS] = {};
+	static u16 root_pitch[NUM_STRINGS] = {0};
 	u8 mask = 1 << string_id;
 	if (!(string_root_pitch_valid & mask)) {
 		root_pitch[string_id] = SEMIS_TO_PITCH(param_index_multi(MP_ROOT, string_id));
@@ -142,8 +142,8 @@ static u16 string_root_pitch(u8 string_id) {
 
 // absolute number of steps at the bottom-pad of string_id - includes MP_OCT, does not include MP_DEGREE
 static s16 string_start_step(u8 string_id) {
-	static u16 string_hash[NUM_STRINGS] = {};
-	static s16 start_step[NUM_STRINGS] = {};
+	static u16 string_hash[NUM_STRINGS] = {0};
+	static s16 start_step[NUM_STRINGS] = {0};
 	// does not save octave offset, string 0 always starts at BOTTOM_PAD_SEMIS
 	static u8 string_start_semis[NUM_STRINGS] = {BOTTOM_PAD_SEMIS};
 	// we add the octave steps at each return statement
@@ -394,6 +394,8 @@ u8 find_string_for_pitch(u16 pitch, u8 from_string, u8 to_string) {
 	if (best_string != 255)
 		return best_string;
 
+#define __FLT_MAX__ 3.402823466e+38F
+
 	// find quietest non-touched string
 	float min_vol = __FLT_MAX__;
 	for (u8 string_id = from_string; string_id < to_string; string_id++) {
@@ -433,8 +435,8 @@ u16 string_position_from_pitch(u8 string_id, u16 pitch) {
 
 void clear_latch(void) {
 	for (u8 string_id = 0; string_id < NUM_STRINGS; string_id++) {
-		write_strings[string_id].latch_touch = (LatchTouch){};
-		play_strings[string_id].latch_touch = (LatchTouch){};
+		write_strings[string_id].latch_touch = (LatchTouch){0};
+		play_strings[string_id].latch_touch = (LatchTouch){0};
 	}
 }
 
@@ -784,8 +786,8 @@ static void generate_string_touch(u8 string_id) {
 	bool has_latch = latch_active_on_string(string_id);
 	// clear latch on latch disable
 	if (prev_latch[string_id] && !has_latch) {
-		write_strings[string_id].latch_touch = (LatchTouch){};
-		play_strings[string_id].latch_touch = (LatchTouch){};
+		write_strings[string_id].latch_touch = (LatchTouch){0};
+		play_strings[string_id].latch_touch = (LatchTouch){0};
 	}
 	prev_latch[string_id] = has_latch;
 	LatchTouch* s_latch = &s_string->latch_touch;

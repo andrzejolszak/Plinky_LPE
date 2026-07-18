@@ -33,21 +33,6 @@ HardwareVersion hw_version;
 CalibMode calib_mode = CALIB_NONE;
 
 #ifdef EMU
-#define RVMASK 16383
-#define DLMASK 32767
-short delaybuf[DLMASK + 1];
-short reverbbuf[RVMASK + 1];
-int emupitchsense;
-int emugatesense;
-#endif
-
-#ifdef EMU
-float powerout; // squared power
-float gainhistoryrms[512];
-int ghi;
-#endif
-
-#ifdef EMU
 uint32_t emupixels[128 * 32];
 void OledFlipEmu(const u8* vram) {
 	if (!vram)

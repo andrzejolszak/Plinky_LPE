@@ -40,7 +40,9 @@ typedef struct lfo {
 static lfo aplfo = LFOINIT(1.f / 32777.f * 9.4f);
 static lfo aplfo2 = LFOINIT(1.3f / 32777.f * 3.15971f);
 
+#ifndef EMU
 __STATIC_FORCEINLINE
+#endif
 float lfo_next(lfo* l) {
 	l->r -= l->a * l->i;
 	l->i += l->a * l->r;
@@ -171,9 +173,14 @@ s32 Reverb2(s32 input, s16* buf) {
 		u32 shim = STEREOADDAVERAGE(shim1, shim2);
 
 		// Fixed point crossfade:
+#ifdef EMU
+		STEREOUNPACK(shim);
+		s32 shimo = shiml * ((SHIMMER_FADE_LEN - 1) - shimmerfade) + shimr * shimmerfade;
+#else
 		u32 a = STEREOPACK((SHIMMER_FADE_LEN - 1) - shimmerfade, shimmerfade);
 		s32 shimo;
 		asm("smuad %0, %1, %2" : "=r"(shimo) : "r"(a), "r"(shim));
+#endif
 		shimo >>= 15; // Divide by SHIMMER_FADE_LEN
 
 		// Apply user-selected shimmer amount.

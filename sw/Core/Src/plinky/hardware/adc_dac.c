@@ -8,10 +8,12 @@
 #include "touchstrips.h"
 
 // these are defined in main.c
+#ifndef EMU
 extern DAC_HandleTypeDef hdac1;
 extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim3;
+#endif
 
 #define ADC_CHANS 8
 #define ADC_SAMPLES 8
@@ -61,7 +63,7 @@ static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
 
 static ValueSmoother adc_smoother[ADC_CHANS];
 
-static CvTouch cv_touch = {};
+static CvTouch cv_touch = {0};
 
 void init_adc_dac(void) {
 	// adc init
@@ -327,7 +329,24 @@ void send_cv_pitch(bool pitch_hi, u16 pitch) {
 	}
 
 	// send to dac
+#ifdef EMU
+	if (pitch_hi) {
+		SetOutputCVEmu(OUT_PITCHHI, dac_value);
+
+		emucvouthist++;
+		emucvouthist &= 1023;
+		if ((emucvouthist & 3) == 0) {
+			for (int c = 0; c < 6; ++c)
+				emucvout[c][emucvouthist / 4] = 0;
+		}
+	}
+	else {
+		SetOutputCVEmu(OUT_PITCHLO, dac_value);
+		emupitchloopback = (dac_value - 52100.f) / -9334.83f;
+	}
+#else
 	HAL_DAC_SetValue(&hdac1, pitch_hi ? DAC_CHANNEL_2 : DAC_CHANNEL_1, DAC_ALIGN_12B_L, dac_value);
+#endif
 }
 
 void cv_calib(void) {
@@ -351,9 +370,9 @@ void cv_calib(void) {
 	bool pitch_present_2back = pitch_present;
 	// edit pitch out with touches from 4 columns
 	s8 last_touched_column = -1;
-	float touch_start_pos[4] = {};
-	float touch_start_cv[4] = {};
-	s16 pres_1back[4] = {};
+	float touch_start_pos[4] = {0};
+	float touch_start_cv[4] = {0};
+	s16 pres_1back[4] = {0};
 	float cv_out[4] = {
 	    adc_dac_calib[DAC_PITCH_CV_LO].bias,
 	    adc_dac_calib[DAC_PITCH_CV_LO].bias + adc_dac_calib[DAC_PITCH_CV_LO].scale * 2048.f * 24.f,
@@ -387,7 +406,11 @@ void cv_calib(void) {
 
 		// wait for touchstrips to update
 		while (get_touch_frame() == cur_frame)
-			__asm__ volatile("" ::: "memory");
+#ifndef EMU
+			__asm__ volatile("" ::: "memory")
+#endif
+			;
+
 		cur_frame = get_touch_frame();
 
 		// use touch to change cv_out values

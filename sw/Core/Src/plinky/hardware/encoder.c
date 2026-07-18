@@ -22,11 +22,18 @@ void clear_last_encoder_use(void) {
 }
 
 void init_encoder(void) {
+#ifdef EMU
+	prev_hardware_state = 0;
+#else
 	prev_hardware_state = (GPIOC->IDR >> 14) & 3;
 	encoder_value = 2;
+#endif
 }
 
 void encoder_irq(void) {
+#ifdef EMU
+	return;
+#else
 	static const s8 enc_deltas[16] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 	static s16 prev_encoder_value;
 
@@ -46,6 +53,7 @@ void encoder_irq(void) {
 	// acceleration
 	encoder_acc *= 0.998f;
 	encoder_acc += abs(prev_encoder_value - encoder_value) * 0.125f;
+#endif
 }
 
 void encoder_tick(void) {

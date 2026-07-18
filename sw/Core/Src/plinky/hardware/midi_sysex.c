@@ -14,7 +14,7 @@ typedef enum {
 
 static u16 sysex_status = 0;
 static u8 sysex_manuf_id = 0;
-static u8 sysex_sub_id[2] = {};
+static u8 sysex_sub_id[2] = {0};
 
 void init_sysex(void) {
 	sysex_status = 0;
@@ -74,7 +74,7 @@ static void process_single_tuning_byte(u8 byte) {
 	}
 	// note data, num_changes x 4 bytes
 	if (sysex_status < 6 + (num_changes << 2)) {
-		static u8 save_byte[3] = {};
+		static u8 save_byte[3] = {0};
 		u8 save_id = (sysex_status - 6) % 4;
 		// first three bytes: save
 		if (save_id < 3)
