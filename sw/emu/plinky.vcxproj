@@ -101,10 +101,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\andrz\source\repos\Plinky_LPE\sw\Core\Inc;C:\Users\andrz\source\repos\Plinky_LPE\sw\Drivers\CMSIS\Include;C:\Users\andrz\source\repos\Plinky_LPE\sw\Drivers\STM32L4xx_HAL_Driver\Inc;C:\Users\andrz\source\repos\Plinky_LPE\sw\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\Core\Src\plinky;imgui;imgui/gl3w;imgui/glfw/include;portaudio/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;EMU;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\andrz\source\repos\Plinky_LPE\sw\Core\Src\plinky;imgui;imgui/gl3w;imgui/glfw/include;portaudio/include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -158,31 +158,41 @@
     <ClCompile Include="pffft.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Core\Src\plinky\hardware\adc_dac.h" />
-    <ClInclude Include="..\core\src\plinky\synth\arp.h" />
-    <ClInclude Include="..\Core\Src\plinky\synth\audio.h" />
-    <ClInclude Include="..\Core\Src\calib.h" />
-    <ClInclude Include="..\Core\Src\plinky\hardware\codec.h" />
-    <ClInclude Include="..\Core\Src\core.h" />
-    <ClInclude Include="..\core\src\edit.h" />
-    <ClInclude Include="..\Core\Src\enums.h" />
-    <ClInclude Include="..\Core\Src\flash.h" />
     <ClInclude Include="..\Core\Src\plinky\data\fonts.h" />
-    <ClInclude Include="..\Core\Src\plinky\gfx\gfx.h" />
     <ClInclude Include="..\Core\Src\plinky\data\icons.h" />
-    <ClInclude Include="..\Core\Src\plinky\hardware\leds.h" />
-    <ClInclude Include="..\Core\Src\plinky\synth\lfos.h" />
     <ClInclude Include="..\Core\Src\plinky\data\logo.h" />
-    <ClInclude Include="..\Core\Src\plinky\gfx\oled\oled.h" />
-    <ClInclude Include="..\Core\Src\plinky\hardware\params.h" />
-    <ClInclude Include="..\Core\Src\rand.h" />
-    <ClInclude Include="..\Core\Src\sigmoid.h" />
-    <ClInclude Include="..\Core\Src\plinky\hardware\spi.h" />
     <ClInclude Include="..\Core\Src\plinky\data\tables.h" />
+    <ClInclude Include="..\Core\Src\plinky\defs.h" />
+    <ClInclude Include="..\Core\Src\plinky\gfx\gfx.h" />
+    <ClInclude Include="..\Core\Src\plinky\gfx\oled\oled.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\accelerometer.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\adc_dac.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\codec.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\encoder.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\leds.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\memory.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\mem_defs.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\midi.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\sensor_defs.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\spi.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\touchstrips.h" />
-    <ClInclude Include="..\core\src\plinky\ui\led_viz.h" />
-    <ClInclude Include="..\core\src\plinky\ui\oled_viz.h" />
-    <ClInclude Include="..\core\src\plinky\ui\pad_actions.h" />
+    <ClInclude Include="..\Core\Src\plinky\plinky.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\arp.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\audio.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\audio_tools.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\conditional_step.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\lfos.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\params.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\param_defs.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\sampler.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\sequencer.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\synth.h" />
+    <ClInclude Include="..\Core\Src\plinky\synth\time.h" />
+    <ClInclude Include="..\Core\Src\plinky\ui\led_viz.h" />
+    <ClInclude Include="..\Core\Src\plinky\ui\oled_viz.h" />
+    <ClInclude Include="..\Core\Src\plinky\ui\pad_actions.h" />
+    <ClInclude Include="..\Core\Src\plinky\ui\settings_menu.h" />
+    <ClInclude Include="..\Core\Src\plinky\utils.h" />
     <ClInclude Include="imgui\gl3w\GL\gl3w.h" />
     <ClInclude Include="imgui\gl3w\GL\glcorearb.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -194,7 +204,6 @@
     <ClInclude Include="imgui_impl_glfw.h" />
     <ClInclude Include="imgui_impl_opengl3.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="webusb.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="imgui\glfw\lib-vc2010-64\glfw3.lib" />

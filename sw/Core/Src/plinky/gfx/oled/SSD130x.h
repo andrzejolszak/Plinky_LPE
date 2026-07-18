@@ -37,23 +37,37 @@ extern I2C_HandleTypeDef hi2c2;
 #define I2C_ADDRESS (0x3c << 1)
 
 static inline void ssd130x_wait(void) {
+#ifdef EMU
+	return;
+#else
 	while (HAL_I2C_GetState(&hi2c2) == HAL_I2C_STATE_BUSY_TX)
 		;
+#endif
 }
 
 static inline void ssd130x_command(unsigned char c) {
+#ifdef EMU
+	return;
+#else
 	u8 buf[2] = {0, c};
 	HAL_I2C_Master_Transmit(&hi2c2, I2C_ADDRESS, buf, 2, 20);
 	HAL_Delay(1);
+#endif
 }
 
 static inline void ssd130x_flip(const u8* buffer) {
+#ifdef EMU
+	void OledFlipEmu(const u8* vram);
+	OledFlipEmu(vram_with_offset);
+	return;
+#else
 	ssd130x_wait();
 	// ignore the dropped "const" warning
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
 	HAL_I2C_Master_Transmit(&hi2c2, I2C_ADDRESS, buffer, OLED_BUFFER_SIZE, 500);
 #pragma GCC diagnostic pop
+#endif
 }
 
 static void ssd130x_init() {

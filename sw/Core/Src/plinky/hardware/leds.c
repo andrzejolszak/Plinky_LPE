@@ -35,6 +35,11 @@ u8 leds[NUM_TOUCHSTRIPS][PADS_PER_STRIP];
 static u8 active_column = 0;
 
 void init_leds(void) {
+
+#ifdef EMU
+	memset(leds, 0, sizeof(leds));
+	return;
+#else
 	TIM1->CR1 = 0; // reset all
 	TIM2->CR1 = 0;
 	TIM4->CR1 = 0;
@@ -62,9 +67,24 @@ void init_leds(void) {
 
 	// clear all leds
 	memset(leds, 0, sizeof(leds));
+#endif
 }
 
 void leds_update(void) {
+
+#ifdef EMU
+	if (active_column < 9) {
+		const u8* ledss = leds[active_column];
+		extern u8 emuleds[9][8];
+		for (int i = 0; i < 8; ++i)
+			emuleds[active_column][i] = ledss[i];
+	}
+
+	active_column = (active_column + 1) % 10; // next column
+
+	return;
+#else
+
 	GPIOD->MODER &= OUTPUT_DISABLE_BITS; // disable all outputs
 
 	const u8* col = leds[active_column];
@@ -98,9 +118,14 @@ void leds_update(void) {
 	GPIOD->MODER |= OutputEnableBits[active_column >> 1]; // activate column
 
 	active_column = (active_column + 1) % 10; // next column
+#endif
 }
 
 void leds_bootswish(void) {
+
+#ifdef EMU
+	return;
+#else
 	for (int f = 0; f < 64; ++f) {
 		HAL_Delay(20);
 		for (int y = 0; y < 9; ++y) {
@@ -122,4 +147,5 @@ void leds_bootswish(void) {
 			}
 		}
 	}
+#endif
 }

@@ -201,6 +201,19 @@ bool set_sys_param(SysParam param, u16 value) {
 // == FLASH WRITING == //
 
 static void flash_erase_page(u8 page) {
+
+#ifdef EMU
+	memset(_flash + page * 2048, -1, 2048);
+#ifndef NOFILE
+	if (_flashf) {
+		fseek(_flashf, page * 2048, SEEK_SET);
+		fwrite(_flash + page * 2048, 1, 2048, _flashf);
+		fflush(_flashf);
+	}
+#endif
+
+	return;
+#else
 	FLASH_WaitForLastOperation((u32)FLASH_TIMEOUT_VALUE);
 	SET_BIT(FLASH->CR, FLASH_CR_BKER); // bank 2
 	MODIFY_REG(FLASH->CR, FLASH_CR_PNB, ((page & 0xFFU) << FLASH_CR_PNB_Pos));
@@ -208,6 +221,7 @@ static void flash_erase_page(u8 page) {
 	SET_BIT(FLASH->CR, FLASH_CR_STRT);
 	FLASH_WaitForLastOperation((u32)FLASH_TIMEOUT_VALUE);
 	CLEAR_BIT(FLASH->CR, (FLASH_CR_PER | FLASH_CR_PNB));
+#endif
 }
 
 static void flash_write_block(void* dst, const void* src, u16 size) {
@@ -260,6 +274,11 @@ bool pattern_outdated(void) {
 // == INIT == //
 
 void check_bootloader_flash(void) {
+
+#ifdef EMU
+	return;
+#endif
+
 	u8 count = 0;
 	u32* rb32 = (u32*)reverb_ram_buf;
 	u32 magic = rb32[64];

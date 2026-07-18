@@ -1,7 +1,34 @@
 #pragma once
 #include "utils.h"
 
+#ifndef EMU
 extern TIM_HandleTypeDef htim3;
+#endif
+
+#ifdef EMU
+enum {
+	OUT_TRIGGER,
+	OUT_CLOCK,
+	OUT_PRESSURE,
+	OUT_GATE,
+	OUT_PITCHLO,
+	OUT_PITCHHI,
+};
+
+int emucvouthist;
+float emucvout[6][256];
+float emupitchloopback;
+#endif
+
+#ifdef EMU
+void SetOutputCVEmu(int chan, int data) {
+	emucvout[chan][emucvouthist / 4] = maxf(emucvout[chan][emucvouthist / 4], data * (1.f / 65535.f));
+}
+#else
+#define SetOutputCVEmu(chan, data)
+#endif
+
+static u16 adc_buffer;
 
 ADC_DAC_Calib* adc_dac_calib_ptr(void);
 
@@ -26,19 +53,35 @@ void cv_calib(void);
 #define CV_OUT_5V 195
 
 static inline void send_cv_clock(bool high) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_CLOCK, high);
+#else
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, high ? CV_OUT_5V : 0);
+#endif
 }
 
 static inline void send_cv_trigger(bool high) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_TRIGGER, high);
+#else
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, high ? CV_OUT_5V : 0);
+#endif
 }
 
 static inline void send_cv_gate(bool high) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_GATE, high);
+#else
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, high ? CV_OUT_5V : 0);
+#endif
 }
 
 static inline void send_cv_pressure(u16 data) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_PRESSURE, data);
+#else
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, (data * CV_OUT_5V) >> 16);
+#endif
 }
 
 // #define SENSE1_Pin GPIO_PIN_8
@@ -49,5 +92,9 @@ static inline void send_cv_pressure(u16 data) {
 // rj: this is ignoring MX_GPIO_Init() in main.c, could be cleaner after low level hardware setup cleanup
 
 static inline bool cv_pitch_present(void) {
+#ifdef EMU
+	return emupitchsense;
+#else
 	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_15) == GPIO_PIN_RESET;
+#endif
 }

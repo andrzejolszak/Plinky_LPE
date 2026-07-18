@@ -286,6 +286,7 @@ void Error_Handler(void);
 static short tx_buf[SAMPLES_PER_TICK * 4];
 static short rx_buf[SAMPLES_PER_TICK * 4];
 
+#ifndef EMU
 void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef* hi2s) {
 	plinky_codec_tick(((u32*)tx_buf) + SAMPLES_PER_TICK, ((u32*)rx_buf) + SAMPLES_PER_TICK);
 }
@@ -293,8 +294,13 @@ void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef* hi2s) {
 void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef* hi2s) {
 	plinky_codec_tick((u32*)tx_buf, ((u32*)rx_buf));
 }
+#endif
 
 static u8 wmcodec_write(u8 reg, u16 data) {
+
+#ifdef EMU
+	return 0;
+#else
 	u8 d[2];
 	d[0] = (reg << 1) | ((data & 0x100) >> 8);
 	d[1] = (u8)data;
@@ -310,9 +316,13 @@ static u8 wmcodec_write(u8 reg, u16 data) {
 		DebugLog("error in wmcodec_write reg %d data %d\r\n", reg, data);
 	}
 	return 0;
+#endif
+
 }
 
 void init_codec(void) {
+
+#ifndef EMU
 	if (HAL_OK != HAL_SAI_Receive_DMA(&hsai_BlockB1, (u8*)rx_buf, sizeof(rx_buf) / 2)) {
 		DebugLog("HAL_SAI_Receive_DMA fail 1\r\n");
 		Error_Handler();
@@ -321,6 +331,8 @@ void init_codec(void) {
 		DebugLog("HAL_SAI_Transmit_DMA fail 1\r\n");
 		Error_Handler();
 	}
+#endif
+
 	HAL_Delay(1);
 	wmcodec_write(0, 0);
 	wmcodec_write(BIASCTRL, BIASCTRL_BIASCUT);
@@ -358,7 +370,10 @@ void init_codec(void) {
 	wmcodec_write(OUT3MIX, OUT3MIX_OUT3MUTE);
 	wmcodec_write(OUT4MIX, OUT4MIX_OUT4MUTE);
 
+#ifndef EMU
 	HAL_Delay(100);
+#endif
+
 	wmcodec_write(LDACVOL, 255);
 	wmcodec_write(RDACVOL, 255 | RDACVOL_DACVU);
 

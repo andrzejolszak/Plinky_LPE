@@ -254,7 +254,13 @@ u8 read_touchstrips(void) {
 		if (HAL_TSC_GroupGetStatus(&htsc, group_id) != TSC_GROUP_COMPLETED)
 			return 255; // give TSC a tick to catch up
 		// if so, save sensor value (resulting range 0 - 65027)
-		u16 value = sensor_val[sensor_id] = (1 << 23) / maxi(129, HAL_TSC_GroupGetValue(&htsc, group_id));
+
+		u16 value = sensor_val[sensor_id] = (1 << 23) / maxi(129, 
+#ifdef EMU
+			HAL_TSC_GroupGetValue(&htsc, sensor_id));
+#else
+			HAL_TSC_GroupGetValue(&htsc, group_id));
+#endif
 		// keep track of lifetime min/max values
 		if (calib_mode && value > sensor_max[sensor_id])
 			sensor_max[sensor_id] = value;

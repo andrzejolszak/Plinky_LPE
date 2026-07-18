@@ -115,7 +115,11 @@ static void draw_scope(void) {
 
 // == MAIN == //
 
-static char __attribute__((section(".endsection"))) version_tail[] = FIRMWARE_VERSION;
+static char 
+#ifndef EMU
+	__attribute__((section(".endsection")))
+#endif
+    version_tail[] = FIRMWARE_VERSION;
 
 static void draw_startup_visuals(void) {
 	static u8 frame = 3;

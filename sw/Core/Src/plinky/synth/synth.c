@@ -659,6 +659,11 @@ static void apply_sample_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, fl
 
 			for (int i = 0; i < SAMPLES_PER_TICK; ++i) {
 				int o0, o1;
+#ifdef EMU
+				ASSERT(outofrange0 || (src0 >= &grain_buf[g0start + 2] && src0 + 1 < &grain_buf[g1start]));
+				ASSERT(outofrange1 || (src1 >= &grain_buf[g1start + 2] && src1 + 1 < &grain_buf[g2start]));
+#endif
+
 				u32 ab0 = *(u32*)(src0); // fetch a pair of 16 bit samples to interpolate between
 				u32 mix = (fpos24 << (16 - 9)) & 0x7fff0000;
 				mix |= 32767 - (mix >> 16); // mix is now the weights for the linear interpolation

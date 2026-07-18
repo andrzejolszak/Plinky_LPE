@@ -106,8 +106,13 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 /* USER CODE BEGIN 0 */
 
 static inline void denormals_init(void) {
+
+#ifdef EMU
+	return;
+#else
 	uint32_t fcspr = __get_FPSCR();
 	__set_FPSCR(fcspr | (1 << 24));
+#endif
 }
 
 /* USER CODE END 0 */

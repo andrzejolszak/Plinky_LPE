@@ -250,6 +250,9 @@ void audio_pre(u32* audio_out, u32* audio_in) {
 	int audiorec_gain = (int)(ext_gain_smoother.y2) / 2;
 
 	newpeak = SATURATE16((newpeak * audiorec_gain) >> 14);
+#ifdef EMU
+	newpeak = 0; // disable loopback
+#endif
 	audio_in_peak = maxi((audio_in_peak * 220) >> 8, newpeak);
 	if (audio_in_peak > audio_in_hold || audio_in_hold_time++ > 500) {
 		audio_in_hold = audio_in_peak;
@@ -439,6 +442,10 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		int lvl_mid = synthlvl_mid * recip;
 		int lvl_side = synthlvl_side * recip;
 
+#ifdef EMU
+		m_compressor = synthlvl_ * recip / 65536.f;
+#endif	
+
 		drylr0 = MIDSIDESCALE(drylr0, lvl_mid, lvl_side);
 		drylr1 = MIDSIDESCALE(drylr1, lvl_mid, lvl_side);
 
@@ -526,4 +533,10 @@ void audio_post(u32* audio_out, u32* audio_in) {
 
 		src += 2;
 	}
+
+#ifdef EMU
+	powerout = power / (SAMPLES_PER_TICK * 2.f * 32768.f * 32768.f);
+	gainhistoryrms[ghi] = lin2db(powerout + 1.f / 65536.f) * 0.5f;
+	ghi = (ghi + 1) & 511;
+#endif
 }

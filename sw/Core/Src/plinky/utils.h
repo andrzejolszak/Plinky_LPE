@@ -17,8 +17,10 @@
 #include <string.h>
 
 // stm32 libraries
+#ifndef EMU
 #include "stm32l476xx.h"
 #include "stm32l4xx_hal.h"
+#endif
 
 // basic typedefs
 typedef int8_t s8;
@@ -54,6 +56,7 @@ typedef union u14 {
 
 #include "plinky.h"
 
+#ifndef EMU
 // time
 static inline u32 millis(void) {
 	return HAL_GetTick();
@@ -61,6 +64,10 @@ static inline u32 millis(void) {
 static inline u32 micros(void) {
 	return TIM5->CNT;
 }
+#else
+#define EmuDebugLog DebugLog
+#endif
+
 // returns true every [duration] ms
 static inline bool do_every(u32 duration, u32* referenceTime) {
 	if (millis() - *referenceTime >= duration) {
@@ -123,7 +130,13 @@ static inline void DebugLog(const char* fmt, ...) {
 // plinky utils
 #define clz __builtin_clz
 #define unlikely(x) __builtin_expect((x), 0)
+
+#ifdef EMU
+#define SMUAD(o, a, b) o = (int)(((s16)(a)) * ((s16)(b)) + ((s16)(a >> 16)) * ((s16)(b >> 16)))
+#else
 #define SMUAD(o, a, b) asm("smuad %0, %1, %2" : "=r"(o) : "r"(a), "r"(b))
+#endif
+
 #define USING_SAMPLER (cur_sample_info.samplelen != 0)
 #define PITCH_TO_SEMIS(pitch) (((pitch) + 256) >> 9)
 #define PITCH_TO_NOTE_NR(pitch) PITCH_TO_SEMIS(pitch)

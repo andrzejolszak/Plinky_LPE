@@ -32,7 +32,105 @@ HardwareVersion hw_version;
 
 CalibMode calib_mode = CALIB_NONE;
 
+#ifdef EMU
+#define RVMASK 16383
+#define DLMASK 32767
+short delaybuf[DLMASK + 1];
+short reverbbuf[RVMASK + 1];
+int emupitchsense;
+int emugatesense;
+#endif
+
+#ifdef EMU
+float powerout; // squared power
+float gainhistoryrms[512];
+int ghi;
+#endif
+
+#ifdef EMU
+uint32_t emupixels[128 * 32];
+void OledFlipEmu(const u8* vram) {
+	if (!vram)
+		return;
+	const u8* src = vram + 1;
+	for (int y = 0; y < 32; y += 8) {
+		for (int x = 0; x < 128; x++) {
+			u8 b = *src++;
+			for (int yy = 0; yy < 8; ++yy) {
+				u32 c = (b & 1) ? 0xffffffff : 0xff000000;
+				int y2 = y + yy;
+#ifdef ROTATE_OLED
+				// pixels[(y2 + (127-x) * 32)] = c; // rotated, pins at bottom
+				emupixels[((31 - y2) + x * 32)] = c; // rotated, pins at top
+#else
+				emupixels[(y2 * 128 + x)] = c;
+#endif
+				b >>= 1;
+			}
+		}
+	}
+}
+
+int* getemubitmap(void) {
+	return (int*)emupixels;
+}
+uint8_t* getemuleds() {
+	return (uint8_t*)leds;
+}
+
+u8 emuleds[9][8];
+int16_t accel_raw[3];
+float accel_lpf[2];
+float accel_smooth[2];
+bool web_serial_connected = false;
+void tud_task(void) {
+}
+
+#endif
+
+void emu_setadc(float araw, float braw, float pitchcv, float gatecv, float xcv, float ycv,
+                                     float acv, float bcv, int gateforce, int pitchsense, int gatesense) {
+#ifdef EMU
+	emupitchsense = pitchsense;
+	emugatesense = gatesense;
+#endif
+	u16* a = adc_buffer;
+	for (int i = 0; i < 8; ++i) {
+		a[0] = clampi((int)(52100 - 9334.83f * pitchcv * 1.f / 12.f), 0, 65535);
+		a[1] = gateforce ? 0 : clampi((int)(31716 - 6548.11f * gatecv), 0, 65535);
+		a[2] = clampi((int)(31665 - 6548.11f * xcv), 0, 65535);
+		a[3] = clampi((int)(31666 - 6548.11f * ycv), 0, 65535);
+		a[4] = clampi((int)(31041 - 6548.11f * acv), 0, 65535);
+		a[5] = clampi((int)(31712 - 6548.11f * bcv), 0, 65535);
+		a[7] = (u16)((1.f - araw) * 65535);
+		a[6] = (u16)((1.f - braw) * 65535);
+		a += 8;
+	}
+}
+
+#ifdef EMU
+#define TWENTY_OVER_LOG2_10 6.02059991328f // (20.f/log2(10.f));
+static inline float lin2db(float lin) { return log2f(lin) * TWENTY_OVER_LOG2_10; }
+static inline float db2lin(float db) { return exp2f(db * (1.f / TWENTY_OVER_LOG2_10)); }
+#define STEREOUNPACK(lr) int lr##l = (s16)lr, lr##r = (s16)(lr >> 16);
+float m_compressor, m_dry, m_audioin, m_dry2wet, m_delaysend, m_delayreturn, m_reverbin, m_reverbout, m_fxout, m_output;
+void MONITORPEAK(float* mon, u32 stereoin) {
+	STEREOUNPACK(stereoin);
+	float peak = (1.f / 32768.f) * maxi(abs(stereoinl), abs(stereoinr));
+	if (peak > *mon)
+		*mon = peak;
+	else
+		*mon += (peak - *mon) * 0.0001f;
+}
+#else
+#define MONITORPEAK(mon, stereoin)
+#endif
+
 static void define_hardware_version(void) {
+#ifdef EMU
+	hw_version = HW_PLINKY;
+	return;
+#else
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 	GPIO_InitStruct.Pin = GPIO_PIN_1;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -41,6 +139,7 @@ static void define_hardware_version(void) {
 	HAL_Delay(1);
 	GPIO_PinState state = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1);
 	hw_version = state == GPIO_PIN_SET ? HW_PLINKY_PLUS : HW_PLINKY;
+#endif
 }
 
 static void open_usb_bootloader(void) {
@@ -48,6 +147,10 @@ static void open_usb_bootloader(void) {
 	draw_str(0, 0, F_16_BOLD, "Re-flash");
 	draw_str(0, 16, F_16, "over USB DFU");
 	oled_flip();
+
+#ifdef EMU
+	return;
+#else
 	HAL_Delay(100);
 
 	// https://community.st.com/s/question/0D50X00009XkeeW/stm32l476rg-jump-to-bootloader-from-software
@@ -66,40 +169,46 @@ static void open_usb_bootloader(void) {
 	JumpToApplication = (void (*)(void))(*((uint32_t*)(0x1FFF0000 + 4)));
 	__set_MSP(*(__IO uint32_t*)0x1FFF0000);
 	JumpToApplication();
+#endif
 }
 
 static void launch_calib(u8 phase) {
 	static u16 knob_a_start = 0;
 	static u16 knob_b_start = 0;
 
-	switch (phase) {
-	// first phase: auto-launch calibration if none found, save knob values
-	case 0:
-		FlashCalibType flash_calib_type = flash_read_calib();
-		if (!(flash_calib_type & FLASH_CALIB_TOUCH))
-			touch_calib(flash_calib_type | FLASH_CALIB_TOUCH);
-		if (!(flash_calib_type & FLASH_CALIB_ADC_DAC))
-			cv_calib();
-		HAL_Delay(80);
-		knob_a_start = adc_get_raw(ADC_A_KNOB);
-		knob_b_start = adc_get_raw(ADC_B_KNOB);
-		break;
-	// second phase: launch calib/bootloader based on knob turns
-	case 1:
-		u16 knob_a_delta = abs(knob_a_start - adc_get_raw(ADC_A_KNOB));
-		u16 knob_b_delta = abs(knob_b_start - adc_get_raw(ADC_B_KNOB));
-		if (knob_a_delta > 4096 && knob_b_delta > 4096)
-			open_usb_bootloader();
-		// legacy implementation, calibration can now be called from the settings menu
-		if (knob_a_delta > 4096)
-			touch_calib(FLASH_CALIB_COMPLETE);
-		if (knob_b_delta > 4096)
-			cv_calib();
-		if (knob_a_delta > 4096 || knob_b_delta > 4096) {
-			draw_logo();
-			leds_bootswish();
+	switch (phase) 
+	{
+		// first phase: auto-launch calibration if none found, save knob values
+		case 0: 
+		{
+			FlashCalibType flash_calib_type = flash_read_calib();
+			if (!(flash_calib_type & FLASH_CALIB_TOUCH))
+				touch_calib(flash_calib_type | FLASH_CALIB_TOUCH);
+			if (!(flash_calib_type & FLASH_CALIB_ADC_DAC))
+				cv_calib();
+			HAL_Delay(80);
+			knob_a_start = adc_get_raw(ADC_A_KNOB);
+			knob_b_start = adc_get_raw(ADC_B_KNOB);
+			break;
 		}
-		break;
+		// second phase: launch calib/bootloader based on knob turns
+		case 1:
+		{
+			u16 knob_a_delta = abs(knob_a_start - adc_get_raw(ADC_A_KNOB));
+			u16 knob_b_delta = abs(knob_b_start - adc_get_raw(ADC_B_KNOB));
+			if (knob_a_delta > 4096 && knob_b_delta > 4096)
+				open_usb_bootloader();
+			// legacy implementation, calibration can now be called from the settings menu
+			if (knob_a_delta > 4096)
+				touch_calib(FLASH_CALIB_COMPLETE);
+			if (knob_b_delta > 4096)
+				cv_calib();
+			if (knob_a_delta > 4096 || knob_b_delta > 4096) {
+				draw_logo();
+				leds_bootswish();
+			}
+			break;
+		}
 	}
 }
 
@@ -122,6 +231,14 @@ void plinky_init(void) {
 	launch_calib(1);
 	init_encoder();
 	init_synth();
+
+#ifdef EMU
+	emu_setadc(0.5f, 0.5f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, false, false, false);
+#endif
+#ifdef EMU
+	void EmuStartSound(void);
+	EmuStartSound();
+#endif
 }
 
 static void log_time(void) {

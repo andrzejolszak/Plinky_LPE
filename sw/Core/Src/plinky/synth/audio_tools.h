@@ -1,7 +1,9 @@
 #pragma once
 #include "utils.h"
 
+#ifndef EMU
 #define __STATIC_FORCEINLINE __attribute__((always_inline)) static inline
+#endif
 
 #define RV_SIZE_MASK 16383
 #define DL_SIZE_MASK 32767

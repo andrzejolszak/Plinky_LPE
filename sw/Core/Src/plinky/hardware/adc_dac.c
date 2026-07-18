@@ -67,6 +67,10 @@ void init_adc_dac(void) {
 	// adc init
 	for (s16 i = 0; i < ADC_CHANS * ADC_SAMPLES; ++i)
 		adc_buffer[i] = 32768;
+
+#ifdef EMU
+	return;
+#else
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adc_buffer, ADC_CHANS * ADC_SAMPLES);
 	// dac init
 	HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
@@ -77,6 +81,7 @@ void init_adc_dac(void) {
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 	// start both adc and dac
 	HAL_TIM_Base_Start(&htim6);
+#endif
 }
 
 u16 adc_get_raw(ADC_DAC_Index index) {
@@ -99,7 +104,11 @@ u16 adc_get_raw(ADC_DAC_Index index) {
 }
 
 static bool cv_gate_present(void) {
+#ifdef EMU
+	return emugatesense;
+#else
 	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_8) == GPIO_PIN_RESET;
+#endif
 }
 
 static float adc_get_calib(ADC_DAC_Index index) {
@@ -183,8 +192,22 @@ void adc_dac_tick(void) {
 }
 
 static void send_pitch_cv_raw(s32 lo_value, s32 hi_value) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_PITCHLO, lo_value);
+	emupitchloopback = (lo_value - 52100.f) / -9334.83f;
+
+	SetOutputCVEmu(OUT_PITCHHI, hi_value);
+
+	emucvouthist++;
+	emucvouthist &= 1023;
+	if ((emucvouthist & 3) == 0) {
+		for (int c = 0; c < 6; ++c)
+			emucvout[c][emucvouthist / 4] = 0;
+	}
+#else
 	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_L, clampi(lo_value, 0, 65535));
 	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_L, clampi(hi_value, 0, 65535));
+#endif
 }
 
 static void adc_dac_monitor(void) {

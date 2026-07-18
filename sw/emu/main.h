@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define EMU
+
 #ifdef WASM
 #include <emscripten.h>
 #else

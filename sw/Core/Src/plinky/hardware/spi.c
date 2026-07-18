@@ -3,6 +3,102 @@
 #include "memory.h"
 #include "synth/synth.h"
 
+#ifdef EMU
+extern s16 _flashram[8 * MAX_SAMPLE_LEN];
+s16 _flashram[8 * MAX_SAMPLE_LEN];
+#ifndef WASM
+FILE* flashfile = 0;
+#endif
+void spi_wait(void) {
+}
+int spi_writeenable(void) {
+	return 0;
+}
+int spi_readid(void) {
+	return 0;
+}
+void spi_setchip(uint32_t addr) {
+}
+int spi_waitnotbusy(const char* msg, void (*callback)(void)) {
+	return 0;
+}
+int spi_erase64k(u32 addr, void (*callback)(void)) {
+	memset(_flashram + addr / 2, -1, 65536);
+#ifndef WASM
+	if (flashfile) {
+		fseek(flashfile, addr, 0);
+		fwrite(_flashram + addr / 2, 1, 65536, flashfile);
+		fflush(flashfile);
+	}
+#endif
+	for (int i = 0; i < 16; ++i) {
+		HAL_Delay(2);
+		if (callback)
+			callback();
+	}
+	return 0;
+}
+void spiopen(void) {
+#ifndef WASM
+	if (!flashfile) {
+		flashfile = fopen("flashspi.raw", "r+b");
+		if (!flashfile) {
+			flashfile = fopen("flashspi.raw", "wb");
+			if (flashfile) {
+				u8 zero[1024] = {0};
+				for (int i = 0; i < (MAX_SAMPLE_LEN * 16) / 1024; ++i)
+					fwrite(zero, 1, 1024, flashfile);
+				fclose(flashfile);
+				flashfile = fopen("flashspi.raw", "r+b");
+			}
+		}
+		if (flashfile) {
+			fseek(flashfile, 0, 0);
+			fread(_flashram, 16, MAX_SAMPLE_LEN, flashfile);
+		}
+	}
+#endif
+}
+
+int spi_write256(u32 addr) {
+	spiopen();
+	memcpy(_flashram + addr / 2, spibigtx + 4, 256);
+#ifndef WASM
+	if (flashfile) {
+		fseek(flashfile, addr, 0);
+		fwrite(_flashram + addr / 2, 1, 256, flashfile);
+		fflush(flashfile);
+	}
+#endif
+	return 0;
+}
+int spi_read256(u32 addr) {
+	memcpy(spibigrx + 4, _flashram + addr / 2, 256);
+	return 0;
+}
+
+int spi_readgrain_dma(int gi) {
+	spiopen();
+	spistate = gi;
+	if (spistate == 0)
+		startspi = RDTSC();
+	++spistate;
+	int start = 0;
+	if (gi)
+		start = grainbufend[gi - 1];
+	int len = grainbufend[gi] - start;
+	u32 addr = grainpos[gi];
+
+	// for (int i = 0; i < len; ++i)
+	//	grainbuf[start + i] = ((addr + i - 2) * 256);
+
+	if (len > 2)
+		memcpy(((u8*)&grainbuf[start]) + 4, _flashram + (addr & (MAX_SAMPLE_LEN * 8 - 1)), len * 2 - 4);
+	spi_read_done();
+	return 0;
+}
+#else
+
 extern SPI_HandleTypeDef hspi2;
 
 #define LAST_GRAIN_SPI_STATE 32
@@ -40,7 +136,10 @@ static void spi_release_cs(void) {
 static void reset_spi_state(void) {
 	spi_state = 0;
 	alex_dma_mode = false;
+
+#ifndef EMU
 	GPIOA->BSRR = 1 << 8; // DAC cs high
+#endif
 }
 
 // init
@@ -117,12 +216,16 @@ static void spi_update_dac(int dac_chan) {
 	u16 data = get_expander_lfo_data(dac_chan & 3);
 	dac_cmd = (2 << 14) + ((dac_chan & 3) << 12) + (data & 0xfff);
 	dac_cmd = (dac_cmd >> 8) | (dac_cmd << 8);
+
+#ifndef EMU
 	// set expander dac
 	cur_spi_pin = 0;
 	hspi2.Instance->CR1 &= ~(1 | 64);
 	hspi2.Instance->CR1 |= 64;
 	SPI_PORT->BSRR = SPI_CS1_PIN_ | SPI_CS0_PIN_;
 	GPIOA->BRR = 1 << 8; // dac cs low
+#endif
+
 	setup_spi_alex_dma((u32)&dac_cmd, (u32)&dac_dummy, 2);
 }
 
@@ -185,7 +288,11 @@ void alex_dma_done(void) {
 		hdma->DmaBaseAddress->IFCR =
 		    (DMA_ISR_TCIF1 << (hdma->ChannelIndex & 0x1CU)); /* Clear the transfer complete flag */
 		if (spi_state >= LAST_GRAIN_SPI_STATE) {
+
+#ifndef EMU
 			GPIOA->BSRR = 1 << 8; // DAC cs high
+#endif
+
 			if (spi_state == LAST_GRAIN_SPI_STATE + 4) {
 				reset_spi_state();
 			}
@@ -284,3 +391,4 @@ int spi_write256(u32 addr) {
 		spi_rv = spi_wait_not_busy("write", 0, 0);
 	return spi_rv;
 }
+#endif

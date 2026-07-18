@@ -382,7 +382,11 @@ void init_midi(void) {
 	midi_clear_all();
 	midi_precalc_bends();
 	midi_update_mpe_mapping();
+
+#ifndef EMU
 	HAL_UART_Receive_DMA(&huart3, midi_receive_buffer, MIDI_BUFFER_SIZE);
+#endif
+
 	receiving_sysex = false;
 }
 
@@ -1283,7 +1287,11 @@ void midi_tick(void) {
 	static u8 last_read_pos = 0;
 	static u8 state = 0;
 	static u8 msg[3] = {0};
+#ifdef EMU
+	u8 read_pos = 0;
+#else
 	u8 read_pos = MIDI_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(huart3.hdmarx);
+#endif
 	if (read_pos != last_read_pos) {
 		u8 len;
 		if (read_pos > last_read_pos)
@@ -1565,6 +1573,7 @@ void debug_log(const char* format, ...) {
 	midi_send_buffer[(midi_send_head++) & 15] = '\n';
 }
 
+#ifndef EMU
 // from https://community.st.com/s/question/0D50X00009XkflR/haluartirqhandler-bug
 // what a trash fire
 // USART Error Handler
@@ -1578,3 +1587,5 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	midi_clear_all();
 	HAL_UART_Receive_DMA(&huart3, midi_receive_buffer, MIDI_BUFFER_SIZE);
 }
+
+#endif
