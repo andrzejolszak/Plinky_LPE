@@ -547,7 +547,6 @@ typedef enum MidiCC {
 	/* 120 */	NUM_PARAMS,		NUM_PARAMS,		NUM_PARAMS,		NUM_PARAMS,		NUM_PARAMS,		NUM_PARAMS,		NUM_PARAMS,		NUM_PARAMS,
 };
 
-#ifndef EMU
 // reverse lookup table
 const static u8 midi_cc_table_rvs[NUM_PARAMS] = {
 	[P_SHAPE] = 13,       [P_DISTORTION] = 4,    [P_PITCH] = 9,          [P_OCT] = 255,          [P_GLIDE] = 5,          [P_INTERVAL] = 14,       // Sound 1
@@ -567,7 +566,6 @@ const static u8 midi_cc_table_rvs[NUM_PARAMS] = {
 	[P_SYN_LVL] = 7,      [P_SYN_WET_DRY] = 8,   [P_HPF] = 31,           [P_MIX_UNUSED1] = 255,  [P_SETTINGS1] = 255,	 [P_VOLUME] = 255,        // Mixer 1
 	[P_IN_LVL] = 89,      [P_IN_WET_DRY] = 90,   [P_SYS_UNUSED1] = 255,  [P_MIX_UNUSED2] = 255,  [P_SETTINGS2] = 255,	 [P_MIX_WIDTH] = 255,     // Mixer 2
 };
-#endif
 
 const static u8 midi_nrpn_table[NUM_PARAMS] = {
 	//			0				1				2				3				4				5
@@ -601,7 +599,6 @@ typedef enum MultiParam {
     NUM_MULTI_PARAMS,
 } MultiParam;
 
-#ifndef EMU
 const static Param param_from_multi_param[NUM_MULTI_PARAMS] = {
     [MP_SHAPE] = P_SHAPE,           [MP_DISTORTION] = P_DISTORTION,     [MP_PITCH] = P_PITCH,           [MP_OCT] = P_OCT,               [MP_GLIDE] = P_GLIDE,           [MP_INTERVAL] = P_INTERVAL,	// Sound 1
     [MP_NOISE] = P_NOISE,           [MP_RESO] = P_RESO,                 [MP_DEGREE] = P_DEGREE,         [MP_SCALE] = P_SCALE,           [MP_MICROTONE] = P_MICROTONE,   [MP_COLUMN] = P_COLUMN,   	// Sound 2
@@ -625,7 +622,6 @@ const static MultiParam multi_param_from_param[P_PLAY_SPD_JIT + 1] = {
 const static LayoutParam layout_param_from_param[P_ROOT + 1] = {
 	[P_ROOT] = LP_ROOT, [P_OCT] = LP_OCT, [P_SCALE] = LP_SCALE, [P_COLUMN] = LP_COLUMN,
 };
-#endif
 
 // clang-format on
 
@@ -707,7 +703,6 @@ typedef enum Font {
 
 // == NAMES == //
 
-#ifndef EMU
 const static char* const param_row_name[R_NUM_ROWS] = {
 
     [R_SOUND1] = I_SLIDERS "Sound", [R_SOUND2] = I_SLIDERS "Sound", [R_ENV1] = I_ENV "Env 1",
@@ -823,7 +818,6 @@ const static char* const scale_name[NUM_SCALES] = {
     [S_CHROMATIC] = "Chromatic",
     [S_DIMINISHED] = "Diminished",
 };
-#endif
 
 // == TYPEDEFS == //
 
@@ -993,6 +987,4 @@ typedef struct GlobalData {
 
 } GlobalData;
 
-#ifndef EMU
 static_assert((sizeof(GlobalData) & 15) == 0, "?");
-#endif

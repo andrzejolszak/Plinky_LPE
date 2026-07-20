@@ -409,18 +409,18 @@ const u8 sys_param_ranges[] = {
 };
 
 const static GlobalData init_global_data = {
-    .midi_tuning_pitch = {},
-    .midi_tuning_active = {},
-    .midi_tuning_name = {},
+    .midi_tuning_pitch = {0},
+    .midi_tuning_active = {0},
+    .midi_tuning_name = {0},
     .layout_params =
         {
-            [LP_ROOT] = {},
-            [LP_OCT] = {},
-            [LP_SCALE] = {},
+            [LP_ROOT] = {0},
+            [LP_OCT] = {0},
+            [LP_SCALE] = {0},
             [LP_COLUMN] = {INDEX_TO_RAW(7, 13), INDEX_TO_RAW(7, 13), INDEX_TO_RAW(7, 13), INDEX_TO_RAW(7, 13),
                            INDEX_TO_RAW(7, 13), INDEX_TO_RAW(7, 13), INDEX_TO_RAW(7, 13), INDEX_TO_RAW(7, 13)},
         },
-    .edit_multi_timbral = {},
+    .edit_multi_timbral = {0},
 };
 
 const static SysParams init_sys_params = {

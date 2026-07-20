@@ -7,6 +7,13 @@
 
 const SynthString* get_synth_string(u8 string_id);
 
+#define AVG_GRAINBUF_SAMPLE_SIZE (64 + 4) // 2 extra for interpolation, 2 extra for SPI address at the start
+#define GRAINBUF_BUDGET (AVG_GRAINBUF_SAMPLE_SIZE * NUM_GRAINS)
+
+static s16 grain_buf[GRAINBUF_BUDGET];
+static s32 grain_pos[NUM_GRAINS];
+static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+
 // utils
 u16 quant_pitch_to_scale(u16 pitch, u8 string_id);
 u8 find_string_for_pitch(u16 pitch, u8 from_string, u8 to_string);

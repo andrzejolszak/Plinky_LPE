@@ -191,6 +191,7 @@
     <ClInclude Include="..\Core\Src\plinky\defs.h" />
     <ClInclude Include="..\Core\Src\plinky\gfx\gfx.h" />
     <ClInclude Include="..\Core\Src\plinky\gfx\oled\oled.h" />
+    <ClInclude Include="..\Core\Src\plinky\gfx\oled\SSD130x.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\accelerometer.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\adc_dac.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\codec.h" />

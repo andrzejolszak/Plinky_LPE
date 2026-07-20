@@ -67,6 +67,110 @@ void update_sample_ram(void);
 void apply_cued_mem_items(void);
 void cue_mem_item(u8 item_id);
 
+#ifdef EMU
+#define FLASH_PAGE_SIZE 2048
+extern u8 _flash[512 * 1024];
+#define FLASH_ADDR_256 ((u32)&_flash)
+#define FLASH_TYPEPROGRAM_DOUBLEWORD 0
+// #define NOFILE
+#ifndef NOFILE
+FILE* _flashf;
+#else
+bool flashinited;
+#endif
+void openflash(void) {
+#ifdef NOFILE
+	if (flashinited)
+		return;
+	flashinited = true;
+	memset(_flash, -1, sizeof(_flash));
+
+#else
+	if (_flashf)
+		return;
+	_flashf = fopen("flashmcu.raw", "rb");
+	if (!_flashf) {
+		memset(_flash, -1, sizeof(_flash));
+		_flashf = fopen("flashmcu.raw", "wb");
+		fwrite(_flash, sizeof(_flash), 1, _flashf);
+		fclose(_flashf);
+	}
+	else {
+		fread(_flash, sizeof(_flash), 1, _flashf);
+		fclose(_flashf);
+	}
+	_flashf = fopen("flashmcu.raw", "r+b");
+#endif
+}
+
+int HAL_FLASH_Program(int flags, uint32_t addr, uint64_t val) {
+	addr -= (u32)FLASH_ADDR_256;
+	if (addr >= sizeof(_flash))
+		return 0;
+	openflash();
+	(*(uint64_t*)&_flash[addr]) = val;
+#ifndef NOFILE
+	fseek(_flashf, addr, SEEK_SET);
+	fwrite(&val, 1, 8, _flashf);
+	fflush(_flashf);
+#endif
+	return 0;
+}
+void HAL_FLASH_Unlock(void) {
+}
+void HAL_FLASH_Lock(void) {
+#ifndef NOFILE
+	if (_flashf)
+		fflush(_flashf);
+#endif
+}
+#pragma pack(push, 1)
+typedef struct UF2_Block {
+	// 32 byte header
+	uint32_t magicStart0;
+	uint32_t magicStart1;
+	uint32_t flags;
+	uint32_t targetAddr;
+	uint32_t payloadSize;
+	uint32_t blockNo;
+	uint32_t numBlocks;
+	uint32_t familyID; // or fileSize;
+	uint8_t data[476];
+	uint32_t magicEnd;
+} UF2_Block;
+static_assert(sizeof(UF2_Block) == 512, "?");
+#pragma pack(pop)
+void ApplyUF2File(const char* fname) {
+	FILE* f = fopen(fname, "rb");
+	if (!f)
+		return;
+	while (f) {
+		UF2_Block blk;
+		if (1 != fread(&blk, 512, 1, f))
+			break;
+		if (blk.magicStart0 != 0x0A324655)
+			continue;
+		if (blk.magicStart1 != 0x9E5D5157)
+			continue;
+		if (blk.magicEnd != 0x0AB16F30)
+			continue;
+		if ((blk.flags & 0x00002000) && blk.familyID != 0x00ff6919)
+			continue;
+		if (blk.payloadSize > 256)
+			continue;
+		if (blk.flags & 0x00000001)
+			continue; // not main flash
+		if (blk.targetAddr >= 0x08080000 && blk.targetAddr <= 0x08100000) {
+			for (int i = 0; i < blk.payloadSize; i += 8) {
+				HAL_FLASH_Program(0, FLASH_ADDR_256 + i + (blk.targetAddr - 0x08080000), *(uint64_t*)&blk.data[i]);
+			}
+		}
+	}
+	fclose(f);
+}
+
+#endif
+
 // ui
 bool press_mem_item(void);
 void save_preset(void);

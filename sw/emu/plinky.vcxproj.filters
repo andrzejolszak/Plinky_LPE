@@ -272,6 +272,9 @@
     <ClInclude Include="..\Core\Src\plinky\hardware\midi_sysex.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\gfx\oled\SSD130x.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="imgui\glfw\lib-vc2010-64\glfw3.lib">

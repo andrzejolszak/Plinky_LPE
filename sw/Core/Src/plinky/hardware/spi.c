@@ -3,6 +3,14 @@
 #include "memory.h"
 #include "synth/synth.h"
 
+bool alex_dma_mode;
+
+static u8 spi_big_rx[256 + 4];
+
+// global for ui
+volatile u8 spi_state = 0;
+u8 spi_bit_tx[256 + 4];
+
 #ifdef EMU
 extern s16 _flashram[8 * MAX_SAMPLE_LEN];
 s16 _flashram[8 * MAX_SAMPLE_LEN];
@@ -62,7 +70,7 @@ void spiopen(void) {
 
 int spi_write256(u32 addr) {
 	spiopen();
-	memcpy(_flashram + addr / 2, spibigtx + 4, 256);
+	memcpy(_flashram + addr / 2, spi_bit_tx + 4, 256);
 #ifndef WASM
 	if (flashfile) {
 		fseek(flashfile, addr, 0);
@@ -73,27 +81,25 @@ int spi_write256(u32 addr) {
 	return 0;
 }
 int spi_read256(u32 addr) {
-	memcpy(spibigrx + 4, _flashram + addr / 2, 256);
+	memcpy(spi_big_rx + 4, _flashram + addr / 2, 256);
 	return 0;
 }
 
 int spi_readgrain_dma(int gi) {
 	spiopen();
-	spistate = gi;
-	if (spistate == 0)
-		startspi = RDTSC();
-	++spistate;
+	spi_state = gi;
+	++spi_state;
 	int start = 0;
 	if (gi)
-		start = grainbufend[gi - 1];
-	int len = grainbufend[gi] - start;
-	u32 addr = grainpos[gi];
+		start = grain_buf_end[gi - 1];
+	int len = grain_buf_end[gi] - start;
+	u32 addr = grain_pos[gi];
 
 	// for (int i = 0; i < len; ++i)
 	//	grainbuf[start + i] = ((addr + i - 2) * 256);
 
 	if (len > 2)
-		memcpy(((u8*)&grainbuf[start]) + 4, _flashram + (addr & (MAX_SAMPLE_LEN * 8 - 1)), len * 2 - 4);
+		memcpy(((u8*)&grain_buf[start]) + 4, _flashram + (addr & (MAX_SAMPLE_LEN * 8 - 1)), len * 2 - 4);
 	spi_read_done();
 	return 0;
 }
@@ -110,14 +116,7 @@ extern SPI_HandleTypeDef hspi2;
 #define SPI_CS0_PIN_ GPIO_PIN_1
 #define SPI_CS1_PIN_ GPIO_PIN_0
 
-bool alex_dma_mode;
-
-static u8 spi_big_rx[256 + 4];
 static u8 cur_spi_pin = SPI_CS0_PIN_;
-
-// global for ui
-volatile u8 spi_state = 0;
-u8 spi_bit_tx[256 + 4];
 
 // toolies
 

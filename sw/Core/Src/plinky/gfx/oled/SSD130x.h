@@ -1,7 +1,9 @@
 #pragma once
 #include "utils.h"
 
+#ifndef EMU
 extern I2C_HandleTypeDef hi2c2;
+#endif
 
 #define OLED_BUFFER_SIZE OLED_HEIGHT / 8 * OLED_WIDTH + 1 // first byte is always 0x40
 
@@ -58,7 +60,7 @@ static inline void ssd130x_command(unsigned char c) {
 static inline void ssd130x_flip(const u8* buffer) {
 #ifdef EMU
 	void OledFlipEmu(const u8* vram);
-	OledFlipEmu(vram_with_offset);
+	OledFlipEmu(buffer);
 	return;
 #else
 	ssd130x_wait();

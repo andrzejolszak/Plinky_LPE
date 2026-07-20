@@ -5,25 +5,42 @@
 
 // https://github.com/STMicroelectronics/STMems_Standard_C_drivers/blob/master/lis2dh12_STdC/example/lis2dh12_read_data_polling.c
 
+#ifndef EMU
 extern I2C_HandleTypeDef hi2c2;
+#endif
 
 #define I2C_TIMEOUT 20
 
 static int32_t platform_write(void* handle, uint8_t reg, uint8_t* bufp, uint16_t len) {
+#ifdef EMU
+	return 0;
+#else
 	/* Write multiple command */
 	reg |= 0x80;
 	HAL_I2C_Mem_Write(handle, LIS2DH12_I2C_ADD_L, reg, I2C_MEMADD_SIZE_8BIT, bufp, len, I2C_TIMEOUT);
 	return 0;
+#endif
 }
 
 static int32_t platform_read(void* handle, uint8_t reg, uint8_t* bufp, uint16_t len) {
+#ifdef EMU
+	return 0;
+#else
 	/* Read multiple command */
 	reg |= 0x80;
 	HAL_I2C_Mem_Read(handle, LIS2DH12_I2C_ADD_L, reg, I2C_MEMADD_SIZE_8BIT, bufp, len, I2C_TIMEOUT);
 	return 0;
+#endif
 }
 
-static stmdev_ctx_t accelerometer = {.write_reg = platform_write, .read_reg = platform_read, .handle = &hi2c2};
+static stmdev_ctx_t accelerometer = {.write_reg = platform_write, .read_reg = platform_read, .handle = 
+#ifndef EMU
+	&hi2c2
+#else
+    0
+#endif
+};
+
 static s16 accel_raw[3];
 static float accel_lpf[2];
 static float accel_smooth[2];
@@ -33,6 +50,9 @@ float accel_get_axis(bool y_axis) {
 }
 
 void init_accel(void) {
+#ifdef EMU
+	return;
+#else
 	HAL_Delay(8);
 	u8 whoamI = 0;
 	lis2dh12_device_id_get(&accelerometer, &whoamI);
@@ -46,6 +66,7 @@ void init_accel(void) {
 		lis2dh12_temperature_meas_set(&accelerometer, LIS2DH12_TEMP_DISABLE);
 		lis2dh12_operating_mode_set(&accelerometer, LIS2DH12_HR_12bit);
 	}
+#endif
 }
 
 void accel_read(void) {

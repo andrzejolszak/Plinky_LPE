@@ -70,7 +70,7 @@ static_assert(sizeof(GlobalData) <= FLASH_PAGE_USABLE, "?");
 
 // == FLASH VARS == //
 
-static u8 lastest_flash_page_id[NUM_FLASH_ITEMS] = {};
+static u8 lastest_flash_page_id[NUM_FLASH_ITEMS] = {0};
 static u8 next_free_flash_page = 0;
 static u32 next_footer_seq = 0;
 static bool flash_busy = false;
@@ -94,7 +94,7 @@ SysParams sys_params;
 Preset cur_preset;                 // floating preset, the one we edit and use for sound generation
 PatternQuarter cur_pattern_qtr[4]; // floating pattern, the one we edit and use for recording/playing
 SampleInfo cur_sample_info;
-GlobalData global_data = {};
+GlobalData global_data = {0};
 
 // item to change to
 static u8 cued_preset_id = 255;
@@ -108,8 +108,8 @@ static u8 edit_item_id = 255; // ram item to edit | msb unset => save, msb set =
 static u32 recent_load_time = 0;
 static char recent_load_msg[24];
 
-static u32 last_ram_write[NUM_MEM_SEGMENTS] = {};
-static u32 last_flash_write[NUM_MEM_SEGMENTS] = {};
+static u32 last_ram_write[NUM_MEM_SEGMENTS] = {0};
+static u32 last_flash_write[NUM_MEM_SEGMENTS] = {0};
 
 // == UTILS == //
 
@@ -228,7 +228,11 @@ static void flash_write_block(void* dst, const void* src, u16 size) {
 	u64* s = (u64*)src;
 	volatile u64* d = (volatile u64*)dst;
 	while (size >= 8) {
+#ifdef EMU
+		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, (u32)(d++), *s++);
+#else
 		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, (u32)(size_t)(d++), *s++);
+#endif
 		size -= 8;
 	}
 }
@@ -274,11 +278,9 @@ bool pattern_outdated(void) {
 // == INIT == //
 
 void check_bootloader_flash(void) {
-
 #ifdef EMU
 	return;
-#endif
-
+#else
 	u8 count = 0;
 	u32* rb32 = (u32*)reverb_ram_buf;
 	u32 magic = rb32[64];
@@ -386,6 +388,7 @@ void check_bootloader_flash(void) {
 	draw_str(0, 24, F_8, verbuf);
 	oled_flip();
 	HAL_Delay(3000);
+#endif
 }
 
 void init_memory(void) {

@@ -47,14 +47,14 @@ static Param selected_param = 255;
 static ModSource selected_mod_src = SRC_BASE;
 static Param mem_param = 255; // remembers previous selected_param, used by encoder and A/B shift-presses
 static s16 edit_strip_start_pos = 0;
-static ValueSmoother edit_strip_pos[NUM_STRINGS] = {};
+static ValueSmoother edit_strip_pos[NUM_STRINGS] = {0};
 static u8 selected_edit_strip = 0;
 
 // mod sources
-static Envelope envelope2[NUM_STRINGS] = {};
+static Envelope envelope2[NUM_STRINGS] = {0};
 static u16 max_envelope2 = 0;
 static u32 max_pres_global = 0;
-static s32 multi_param_lfo_offset[NUM_MULTI_PARAMS] = {};
+static s32 multi_param_lfo_offset[NUM_MULTI_PARAMS] = {0};
 static u16 sample_hold[NUM_STRINGS] = {0, 1 << 12, 2 << 12, 3 << 12, 4 << 12, 5 << 12, 6 << 12, 7 << 12};
 static u16 sample_hold_global = {8 << 12};
 
@@ -71,9 +71,17 @@ static u32 clear_mods_duration = 0; // enables clear modulation message
 // == UTILS == //
 
 static s32 SATURATE17(s32 a) {
+#ifdef EMU
+	if (a < -65536)
+		a = -65536;
+	else if (a > 65535)
+		a = 65535;
+	return a;
+#else
 	int tmp;
 	asm("ssat %0, %1, %2" : "=r"(tmp) : "I"(17), "r"(a));
 	return tmp;
+#endif
 }
 
 // we force the bitshift to the positive domain to avoid integer rounding differences
@@ -195,7 +203,7 @@ void set_mod_from_nrpn(Param param_id, u14 value, ModSource mod_src) {
 }
 
 void params_rcv_cc(u8 data1, u8 data2, bool multi, u8 string_id) {
-	static u14 cc14_values[NUM_14BIT_CCS][NUM_STRINGS] = {};
+	static u14 cc14_values[NUM_14BIT_CCS][NUM_STRINGS] = {0};
 
 	// global parameters live on string 0
 	if (!multi)

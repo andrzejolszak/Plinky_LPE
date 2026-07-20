@@ -66,9 +66,10 @@ static ValueSmoother adc_smoother[ADC_CHANS];
 static CvTouch cv_touch = {0};
 
 void init_adc_dac(void) {
+	u16* a = adc_buffer;
 	// adc init
 	for (s16 i = 0; i < ADC_CHANS * ADC_SAMPLES; ++i)
-		adc_buffer[i] = 32768;
+		a[i] = 32768;
 
 #ifdef EMU
 	return;
@@ -230,14 +231,15 @@ static void adc_dac_monitor(void) {
 
 		// display raw buffer values
 		oled_clear();
-		fdraw_str(0, 0, F_12, "A %d", adc_buffer[ADC_A_KNOB] / 256);
-		fdraw_str(32, 0, F_12, "B %d", adc_buffer[ADC_B_KNOB] / 256);
-		fdraw_str(64, 0, F_12, "G %d", adc_buffer[ADC_GATE] / 256);
-		fdraw_str(96, 0, F_12, "P %d", adc_buffer[ADC_PITCH] / 256);
-		fdraw_str(0, 16, F_12, "A %d", adc_buffer[ADC_A_CV] / 256);
-		fdraw_str(32, 16, F_12, "B %d", adc_buffer[ADC_B_CV] / 256);
-		fdraw_str(64, 16, F_12, "X %d", adc_buffer[ADC_X_CV] / 256);
-		fdraw_str(96, 16, F_12, "Y %d", adc_buffer[ADC_Y_CV] / 256);
+		u16* a = adc_buffer;
+		fdraw_str(0, 0, F_12, "A %d", a[ADC_A_KNOB] / 256);
+		fdraw_str(32, 0, F_12, "B %d", a[ADC_B_KNOB] / 256);
+		fdraw_str(64, 0, F_12, "G %d", a[ADC_GATE] / 256);
+		fdraw_str(96, 0, F_12, "P %d", a[ADC_PITCH] / 256);
+		fdraw_str(0, 16, F_12, "A %d", a[ADC_A_CV] / 256);
+		fdraw_str(32, 16, F_12, "B %d", a[ADC_B_CV] / 256);
+		fdraw_str(64, 16, F_12, "X %d", a[ADC_X_CV] / 256);
+		fdraw_str(96, 16, F_12, "Y %d", a[ADC_Y_CV] / 256);
 		oled_flip();
 		HAL_Delay(20);
 
@@ -444,10 +446,11 @@ void cv_calib(void) {
 		send_pitch_cv_raw((s32)cv_out[cur_lo_column], (s32)cv_out[cur_hi_column]);
 
 		// while calibrating pitch out, track average neutral values on the cv inputs
+		u16* a = adc_buffer;
 		for (u8 i = 0; i < NUM_CV_INS; ++i) {
 			u32 tot = 0;
 			for (u8 j = 0; j < ADC_SAMPLES; ++j)
-				tot += adc_buffer[j * ADC_CHANS + i];
+				tot += a[j * ADC_CHANS + i];
 			tot /= ADC_SAMPLES;
 			if (adc_avgs[i][0] < 0)
 				adc_avgs[i][0] = adc_avgs[i][1] = tot;
@@ -491,6 +494,7 @@ void cv_calib(void) {
 	oled_flip();
 	HAL_Delay(1500);
 
+	u16* a = adc_buffer;
 	u32 totals[2] = {0};
 	do {
 		for (u8 i = 0; i < 2; ++i) {
@@ -498,7 +502,7 @@ void cv_calib(void) {
 			HAL_Delay(50);
 			u32 total = 0;
 			for (u8 j = 0; j < ADC_SAMPLES; ++j)
-				total += adc_buffer[j * ADC_CHANS + ADC_PITCH];
+				total += a[j * ADC_CHANS + ADC_PITCH];
 			total /= ADC_SAMPLES;
 			totals[i] = total;
 		}
@@ -510,7 +514,7 @@ void cv_calib(void) {
 	draw_str(0, 16, F_12, "pitch cv input...");
 	oled_flip();
 	HAL_Delay(1000); // give the user some time to fully plug in the jack
-
+	u16* a = adc_buffer;
 	for (u8 i = 0; i < 2; i++) {
 		// in reality, pitch in calib works from both pitch lo and pitch hi outputs
 		send_pitch_cv_raw((s32)cv_out[i], (s32)cv_out[i + 2]);
@@ -520,7 +524,7 @@ void cv_calib(void) {
 		// take 256 measurements
 		for (u16 m = 0; m < 256; ++m) {
 			for (u8 smp = 0; smp < ADC_SAMPLES; ++smp)
-				tot += adc_buffer[smp * ADC_CHANS];
+				tot += a[smp * ADC_CHANS];
 			HAL_Delay(2);
 		}
 		tot /= ADC_SAMPLES * 256;

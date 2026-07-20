@@ -472,8 +472,6 @@ void update_reference_pitch(void) {
 // === UNORGANIZED SAMPLER CODE === //
 
 #define MAX_SAMPLE_VOICES 6
-#define AVG_GRAINBUF_SAMPLE_SIZE (64 + 4) // 2 extra for interpolation, 2 extra for SPI address at the start
-#define GRAINBUF_BUDGET (AVG_GRAINBUF_SAMPLE_SIZE * NUM_GRAINS)
 
 // static float smooth_lpg(ValueSmoother* s, s32 out, float drive, float noise, float env1_lvl) {
 // 	s16 n = ((s16*)rndtab)[rand() & 16383];
@@ -489,10 +487,6 @@ void update_reference_pitch(void) {
 #define CALCLOOPEND(slice_id)                                                                                          \
 	((cur_sample_info.loop & 2 || (slice_id) >= 7) ? cur_sample_info.samplelen - 192                                   \
 	                                               : cur_sample_info.splitpoints[(slice_id) + 1])
-
-static s16 grain_buf[GRAINBUF_BUDGET];
-static s32 grain_pos[NUM_GRAINS];
-static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
 
 // getters for spi
 s16* grain_buf_ptr(void) {
