@@ -19,10 +19,14 @@
 #include "touchstrips.h"
 // -- cleanup
 
+// == DEFINES == //
+
 #ifdef EMU
 #define FLASH_PAGE_SIZE 2048
+#define FLASH_PAGE_USABLE (FLASH_PAGE_SIZE - sizeof(SysParams) - sizeof(PageFooter))
 u8 _flash[512 * 1024];
-#define FLASH_ADDR_256 ((u32) & _flash)
+#define FLASH_ADDR_256 ((size_t)_flash)
+#define FLASH_PAGE_PTR(page_id) ((FlashPage*)(FLASH_ADDR_256 + (page_id) * FLASH_PAGE_SIZE))
 #define FLASH_TYPEPROGRAM_DOUBLEWORD 0
 // #define NOFILE
 #ifndef NOFILE
@@ -120,14 +124,12 @@ void ApplyUF2File(const char* fname) {
 	}
 	fclose(f);
 }
-
-#endif
-
-// == DEFINES == //
-
+#else
 #define FLASH_START 0x08000000
 #define FLASH_PAGE_USABLE (FLASH_PAGE_SIZE - sizeof(SysParams) - sizeof(PageFooter))
 #define FLASH_PAGE_PTR(page_id) ((FlashPage*)((FLASH_START + 256 * FLASH_PAGE_SIZE) + (page_id) * FLASH_PAGE_SIZE))
+#endif
+
 #define LATEST_FLASH_PTR(page_id) FLASH_PAGE_PTR(lastest_flash_page_id[page_id])
 #define FOOTER_VERSION 2
 #define CALIB_PAGE 255
@@ -1153,6 +1155,22 @@ void save_preset(void) {
 // == CALIB == //
 
 FlashCalibType flash_read_calib(void) {
+#ifdef EMU
+	openflash();
+#endif
+#if defined EMU // WASM?
+#ifndef CALIB_TEST
+	if (1) {
+		// fake calib results
+		for (int i = 0; i < 18; ++i) {
+			for (int j = 0; j < 8; ++j)
+				touch_calib_ptr()[i].pres[j] = 8000,
+				touch_calib_ptr()[i].pos[j] = (512 * j - 1792) * (((i % 9) == 8) ? -1 : 1);
+		}
+		return 3;
+	}
+#endif
+#endif
 	FlashCalibType flash_calib_type = FLASH_CALIB_NONE;
 	volatile u64* flash = (volatile u64*)FLASH_PAGE_PTR(CALIB_PAGE);
 	if (!(flash[0] == MAGIC && flash[255] == ~MAGIC))

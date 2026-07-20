@@ -232,6 +232,10 @@ static void launch_calib(u8 phase) {
 }
 
 void plinky_init(void) {
+#ifdef EMU
+	tc_init();
+#endif
+
 	init_accel();
 	define_hardware_version();
 	init_gfx(); // including oled

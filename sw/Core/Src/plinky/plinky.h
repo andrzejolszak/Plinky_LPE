@@ -9,10 +9,6 @@ float powerout; // squared power
 float gainhistoryrms[512];
 int ghi;
 float m_compressor;
-#define RVMASK 16383
-#define DLMASK 32767
-short delaybuf[DLMASK + 1];
-short reverbbuf[RVMASK + 1];
 int emupitchsense;
 int emugatesense;
 #endif
