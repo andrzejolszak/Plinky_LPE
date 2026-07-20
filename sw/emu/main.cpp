@@ -17,7 +17,7 @@
 #include <thread>
 #include "pffft.h"
 #include <portaudio.h>
-// #include "../Core/Src/plinky/config.h"
+#include "../Core/Src/plinky/plinky.h"
 
 #ifdef _WIN32
 
@@ -50,27 +50,7 @@ static inline void HAL_Delay(int ms) {
 
 #ifdef EMU
 #ifdef _WIN32
-LARGE_INTEGER pffreq, pfstart;
-uint64_t millisEmu = 0;
-static inline uint64_t emu_rdtsc(void) {
-	if (millisEmu > 0) {
-		return millisEmu * 80000;
-	}
-	LARGE_INTEGER now;
-	QueryPerformanceCounter(&now);
-	return (((now.QuadPart - pfstart.QuadPart) * 80000000) / pffreq.QuadPart);
-}
-#define RDTSC() emu_rdtsc()
-static inline u32 millis(void) {
-	return RDTSC() / 80000;
-}
-static inline u32 micros(void) {
-	return RDTSC() / 80;
-}
-static inline void tc_init(void) {
-	QueryPerformanceFrequency(&pffreq);
-	QueryPerformanceCounter(&pfstart);
-}
+
 #elif defined(__APPLE__)
 #include <mach/mach_time.h>
 uint64_t time_start;
@@ -134,7 +114,7 @@ extern "C" {
 		resetspistate();
 	}
 
-// #include "../Core/Src/plinky/adc.h"
+#include "../Core/Src/plinky/hardware/adc_dac.h"
 #include "../Core/Src/plinky/data/tables.h"
     extern const short wavetable[WT_LAST][WAVETABLE_SIZE];
     }
@@ -311,8 +291,6 @@ static void glfw_error_callback(int error, const char* description){    fprintf(
 #undef min
 #undef max
 
-int clampi(int x, int mn, int mx) { return (x<mn)?mn:(x>mx)?mx:x; }
-
 int buttonsw, buttonsh, buttonscomp;
 GLuint oledtex,buttonstex;
 //#define ROTATE_OLED
@@ -420,18 +398,6 @@ float sliceflux[64];
 bool snappos=true;
 int maxstep;
 float maxdflux;
-inline float maxf(float a, float b) {
-	return (a > b) ? a : b;
-}
-inline int maxi(int a, int b) {
-	return (a > b) ? a : b;
-}
-inline int mini(int a, int b) {
-	return (a < b) ? a : b;
-}
-inline float clampf(float a, float mn, float mx) {
-	return (a < mn) ? mn : (a > mx) ? mx : a;
-}
 
 #ifdef _WIN32
 HMIDIIN hmidiin;
@@ -1384,9 +1350,10 @@ void EmuFrame() {
 	int step = cur_step;
 	int q = (step / 16) & 3;
 	for (int i = 0; i < 8; ++i) {
-		FingerRecord* fr = &rampattern[q].steps[(step & 15)][i];
+		// This type, vs. params FingerRecord
+		PatternStringStep* fr = &rampattern[q].steps[(step & 15)][i];
 		for (int j = 0; j < 8; ++j) {
-			volhisto[i * 9 + j] = (float)fr->pressure[j] + 10;
+			volhisto[i * 9 + j] = (float)fr->pres[j] + 10;
 		}
 		volhisto[i * 9 + 8] = 0;
 		for (int j = 0; j < 4; ++j) {

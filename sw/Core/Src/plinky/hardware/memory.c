@@ -9,7 +9,10 @@
 #include "synth/synth.h"
 #include "ui/oled_viz.h"
 #include "ui/pad_actions.h"
-#include "usb/web_editor.h"
+
+#ifndef EMU
+#include "usb/web_editor.h
+#endif
 
 // cleanup
 #include "adc_dac.h"
@@ -875,8 +878,11 @@ void update_sample_ram(void) {
 // == SAVE / LOAD == //
 
 void load_preset(u8 preset_id, bool show_message) {
+#ifndef EMU
 	if (receiving_web_preset)
 		return;
+#endif
+
 	load_preset_id = preset_id;
 	force_load_preset = true;
 	update_preset_ram();

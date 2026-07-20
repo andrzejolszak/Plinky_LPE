@@ -9,9 +9,10 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-extern "C" {
 #include "main.h"
-#include "..\..\Core\Src\plinky\gfx\gfx.h"
+extern "C" 
+{
+#include "gfx\gfx.h"
 }
 
 
@@ -42,13 +43,13 @@ namespace tests
 
             GetDisplay(disp1);
 
-            clear();
+            oled_clear();
             plinky_frame();
 
-            putpixel(6, 0, 1);
+            put_pixel(6, 0, 1);
             AssertScreen("initState.bmp");
 
-            char *expectedLeds = 
+            const char *expectedLeds = 
                 "x......x"
                 "..x....."
                 "....x..."
@@ -82,7 +83,7 @@ namespace tests
 
             AssertScreen("soundC1.bmp");
 
-            char* expectedLeds = 
+            const char* expectedLeds = 
                 "x......x"
                 "..x....."
                 "....x..."
@@ -176,7 +177,7 @@ namespace tests
 
             ShiftInitWeirdnessFix(audioOut, audioin);
 
-            pressButton(P_SHIFT_DOWN, audioOut, audioin);
+            pressButton(FN_SHIFT_B, audioOut, audioin);
 
             // First press weirdness...
             pressButton(P_DEGREE, audioOut, audioin);
@@ -187,12 +188,12 @@ namespace tests
             pressButton(P_DEGREE, audioOut, audioin);
             releaseButton(P_DEGREE, audioOut, audioin);
 
-            pressButton(P_INPUT_X, audioOut, audioin);
-            releaseButton(P_INPUT_X, audioOut, audioin);
+            pressButton(P_X_SYM, audioOut, audioin);
+	        releaseButton(P_X_SYM, audioOut, audioin);
 
-            releaseButton(P_SHIFT_DOWN, audioOut, audioin);
+            releaseButton(FN_SHIFT_B, audioOut, audioin);
 
-            char *expectedLeds = 
+            const char *expectedLeds = 
                 "...x...x"
                 "..x....."
                 "x...x..."
@@ -239,15 +240,16 @@ namespace tests
             }
         }
 
-        void pressButton(EParams param, u32 *audioOut, u32 *audioin, int baseOffset = 100, int waitMillis = 300) {
+        void pressButton(int param, u32* audioOut, u32* audioin, int baseOffset = 100, int waitMillis = 300) {
           settouch(param, 2000, audioin, audioOut, baseOffset, waitMillis);
         }
 
-        void releaseButton(EParams param, u32 *audioOut, u32 *audioin, int baseOffset = 100, int waitMillis = 300) {
+        void releaseButton(int param, u32* audioOut, u32* audioin, int baseOffset = 100, int waitMillis = 300) {
           settouch(param, 0, audioin, audioOut, baseOffset, waitMillis);
         }
 
-        void settouch(EParams param, int pressure, u32 *audioOut, const u32 *audioin, int baseOffset = 100, int waitMillis = 300)
+        void settouch(int param, int pressure, u32* audioOut, const u32* audioin, int baseOffset = 100,
+                      int waitMillis = 300)
         {
             // TODO: first col, last col, shift row
           int columnIdx = 1 + (param % 6);
@@ -299,7 +301,7 @@ namespace tests
             }
         }
 
-        void AssertLeds(char* expected) {
+        void AssertLeds(const char* expected) {
           int firstDiffLine = -1;
           char buf[9 * 8];
 
@@ -339,7 +341,7 @@ namespace tests
           Assert::IsFalse(firstDiffLine > -1, wc);
         }
 
-        void AssertScreen(char* name) {
+        void AssertScreen(const char* name) {
           char *fname = (char *)malloc(strlen(name) + strlen("./../../plinky_tests/") + 1);
           strcpy(fname, "./../../plinky_tests/");
           strcpy(fname + strlen("./../../plinky_tests/"), name);

@@ -12,7 +12,11 @@
 #include <assert.h>
 #include <math.h>
 #include <stdarg.h>
+
+#ifndef EMU
 #include <stdatomic.h>
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +62,31 @@ typedef union u14 {
 
 #include "plinky.h"
 
-#ifndef EMU
+#ifdef EMU
+#include <windows.h>
+#define EmuDebugLog DebugLog
+LARGE_INTEGER pffreq, pfstart;
+uint64_t millisEmu = 0;
+static inline uint64_t emu_rdtsc(void) {
+	if (millisEmu > 0) {
+		return millisEmu * 80000;
+	}
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&now);
+	return (((now.QuadPart - pfstart.QuadPart) * 80000000) / pffreq.QuadPart);
+}
+#define RDTSC() emu_rdtsc()
+static inline u32 millis(void) {
+	return RDTSC() / 80000;
+}
+static inline u32 micros(void) {
+	return RDTSC() / 80;
+}
+static inline void tc_init(void) {
+	QueryPerformanceFrequency(&pffreq);
+	QueryPerformanceCounter(&pfstart);
+}
+#else
 // time
 static inline u32 millis(void) {
 	return HAL_GetTick();
@@ -66,8 +94,6 @@ static inline u32 millis(void) {
 static inline u32 micros(void) {
 	return TIM5->CNT;
 }
-#else
-#define EmuDebugLog DebugLog
 #endif
 
 // returns true every [duration] ms
@@ -124,7 +150,6 @@ static inline s32 map_s32(s32 value, s32 in_min, s32 in_max, s32 out_min, s32 ou
 }
 
 // debug
-void gfx_debug(u8 row, const char* fmt, ...);
 void debug_log(const char* format, ...);
 static inline void DebugLog(const char* fmt, ...) {
 }

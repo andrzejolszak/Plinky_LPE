@@ -20,7 +20,10 @@
 #include "ui/oled_viz.h"
 #include "ui/pad_actions.h"
 #include "ui/settings_menu.h"
-#include "usb/usb.h"
+
+#ifndef EMU
+#include "usb/usb.h
+#endif
 
 u32 debug_time[TIME_LOG_ITEMS];
 const char* debug_label[TIME_LOG_ITEMS] = {"ts",     "au_pre", "pr_ram", "seq",    "s_tch", "prm_t",

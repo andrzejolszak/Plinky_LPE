@@ -18,7 +18,10 @@
 #include "synth/synth.h"
 #include "synth/time.h"
 #include "ui/oled_viz.h"
+
+#ifndef EMU
 #include "usb/usb.h"
+#endif
 
 // midi uart, lives in main.c
 #ifndef EMU

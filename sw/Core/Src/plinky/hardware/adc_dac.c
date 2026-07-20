@@ -18,9 +18,6 @@ extern TIM_HandleTypeDef htim3;
 #define ADC_CHANS 8
 #define ADC_SAMPLES 8
 
-#define ADC_CHANS 8
-#define ADC_SAMPLES 8
-
 #define NUM_CV_INS 6
 
 #define CV_GATE_THRESH 6000
@@ -514,7 +511,6 @@ void cv_calib(void) {
 	draw_str(0, 16, F_12, "pitch cv input...");
 	oled_flip();
 	HAL_Delay(1000); // give the user some time to fully plug in the jack
-	u16* a = adc_buffer;
 	for (u8 i = 0; i < 2; i++) {
 		// in reality, pitch in calib works from both pitch lo and pitch hi outputs
 		send_pitch_cv_raw((s32)cv_out[i], (s32)cv_out[i + 2]);

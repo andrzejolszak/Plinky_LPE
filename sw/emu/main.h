@@ -1,7 +1,10 @@
+#pragma once
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "utils.h"
 
 #define EMU
 
@@ -73,7 +76,7 @@ void emu_setadc(float araw, float braw, float pitchcv, float gatecv, float xcv, 
                 int pitchsense, int gatesense);
 
 void plinky_frame();
-void plinky_init();
+// void plinky_init();
 void uitick(u32 *dst, const u32 *src, int half);
 
 /// <summary>
@@ -131,24 +134,6 @@ void ApplyUF2File(const char *fname);
 
 extern int samplelen;
 
-typedef struct FingerRecord {
-  u8 pos[4];
-  u8 pressure[8];
-} FingerRecord;
-
-typedef struct Preset {
-  s16 params[96][8];
-  u8 arpon;
-  s8 loopstart_step;
-  s8 looplen_step;
-  u8 paddy[16 - 3];
-} Preset;
-
-typedef struct PatternQuarter {
-  FingerRecord steps[16][8];
-  s8 autoknob[16 * 8][2];
-} PatternQuarter;
-
 extern Preset rampreset;
 extern PatternQuarter rampattern[4];
 extern s8 cur_step;
@@ -190,7 +175,6 @@ int getheadphonevol(void);
 uint32_t wang_hash(uint32_t seed);
 int main(int argc, char **argv);
 void Shutdown();
-void EMSCRIPTEN_KEEPALIVE plinky_init(void);
 void ApplyUF2File(const char *fname);
 void plinky_frame(void);
 void SleepMillis(int millis);
