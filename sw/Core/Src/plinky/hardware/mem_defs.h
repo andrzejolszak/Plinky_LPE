@@ -18,7 +18,7 @@ static u16 get_accel_sens(void) {
 	return sys_params.accel_sens;
 }
 
-static u16 get_volume(void) {
+u16 get_volume(void) {
 	return (sys_params.volume_msb << 8) + sys_params.volume_lsb;
 }
 

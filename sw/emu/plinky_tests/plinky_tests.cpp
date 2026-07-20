@@ -9,10 +9,10 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-#include "main.h"
 extern "C" 
 {
-#include "gfx\gfx.h"
+#include "../main.h"
+#include "../../Core/Src/plinky/gfx/gfx.h"
 }
 
 
@@ -135,16 +135,16 @@ namespace tests
             emu_setadc(0.5f, 0.5f, 12, 2, 3, -4, -1, 3, 0, 0, 0); // nop
             WaitMs(300, audioOut, audioin);
 
-            encval += 5; // nop
+            encoder_value += 5; // nop
             WaitMs(100, audioOut, audioin);
 
-            encval -= 5; // nop
+            encoder_value -= 5; // nop
             WaitMs(100, audioOut, audioin);
 
-            encbtn = 1; // nop
+            encoder_pressed = 1; // nop
             WaitMs(100, audioOut, audioin);
 
-            encbtn = 0; // nop
+            encoder_pressed = 0; // nop
             WaitMs(100, audioOut, audioin);
 
             settouch(3, 4, 2047);
@@ -206,7 +206,7 @@ namespace tests
 
             AssertLeds(expectedLeds);
 
-            encval = 350;
+            encoder_value = 350;
             WaitMs(500, audioOut, audioin);
 
             AssertScreen("connectState.bmp");
@@ -230,7 +230,7 @@ namespace tests
 
               // 500hz - no half-frames
               if (i % 2 == 0) {
-                uitick(audioOut, audioin, 0);
+                plinky_codec_tick(audioOut, audioin);
               }
 
               // ~21hz

@@ -62,39 +62,7 @@ typedef union u14 {
 
 #include "plinky.h"
 
-#ifdef EMU
-#include <windows.h>
-#define EmuDebugLog DebugLog
-LARGE_INTEGER pffreq, pfstart;
-uint64_t millisEmu = 0;
-static inline uint64_t emu_rdtsc(void) {
-	if (millisEmu > 0) {
-		return millisEmu * 80000;
-	}
-	LARGE_INTEGER now;
-	QueryPerformanceCounter(&now);
-	return (((now.QuadPart - pfstart.QuadPart) * 80000000) / pffreq.QuadPart);
-}
-#define RDTSC() emu_rdtsc()
-static inline u32 millis(void) {
-	return RDTSC() / 80000;
-}
-static inline u32 micros(void) {
-	return RDTSC() / 80;
-}
-static inline void tc_init(void) {
-	QueryPerformanceFrequency(&pffreq);
-	QueryPerformanceCounter(&pfstart);
-}
-#else
-// time
-static inline u32 millis(void) {
-	return HAL_GetTick();
-}
-static inline u32 micros(void) {
-	return TIM5->CNT;
-}
-#endif
+extern inline u32 millis(void);
 
 // returns true every [duration] ms
 static inline bool do_every(u32 duration, u32* referenceTime) {
@@ -155,8 +123,15 @@ static inline void DebugLog(const char* fmt, ...) {
 }
 
 // plinky utils
+#ifdef EMU
+extern u32 clz(u32 val);
+#define likely(x) (x)
+#define unlikely(x) (x)
+#else
 #define clz __builtin_clz
+#define likely(x) __builtin_expect((x), 1)
 #define unlikely(x) __builtin_expect((x), 0)
+#endif
 
 #ifdef EMU
 #define SMUAD(o, a, b) o = (int)(((s16)(a)) * ((s16)(b)) + ((s16)(a >> 16)) * ((s16)(b >> 16)))

@@ -1,5 +1,7 @@
 #include "accelerometer.h"
+#ifndef EMU
 #include "../../lis2dh12_reg.h"
+#endif
 #include "memory.h"
 #include "synth/params.h"
 
@@ -33,13 +35,10 @@ static int32_t platform_read(void* handle, uint8_t reg, uint8_t* bufp, uint16_t 
 #endif
 }
 
-static stmdev_ctx_t accelerometer = {.write_reg = platform_write, .read_reg = platform_read, .handle = 
 #ifndef EMU
-	&hi2c2
-#else
-    0
+static stmdev_ctx_t accelerometer = {.write_reg = platform_write, .read_reg = platform_read, .handle = &hi2c2};
 #endif
-};
+
 
 static s16 accel_raw[3];
 static float accel_lpf[2];
@@ -70,6 +69,9 @@ void init_accel(void) {
 }
 
 void accel_read(void) {
+#ifdef EMU
+	return;
+#else
 	if (!accelerometer.handle)
 		return;
 	lis2dh12_reg_t reg;
@@ -81,6 +83,7 @@ void accel_read(void) {
 	accel_raw[0] = tmp[0];
 	accel_raw[1] = tmp[1];
 	accel_raw[2] = tmp[2];
+#endif
 }
 
 void accel_tick(void) {

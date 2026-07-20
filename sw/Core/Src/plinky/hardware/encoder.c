@@ -5,7 +5,7 @@
 #include "ui/settings_menu.h"
 
 volatile bool encoder_pressed = false;
-static volatile s8 encoder_value = 0;
+volatile s8 encoder_value = 0;
 
 static u8 prev_hardware_state;
 static float encoder_acc;

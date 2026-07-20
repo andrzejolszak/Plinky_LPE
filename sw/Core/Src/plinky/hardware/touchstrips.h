@@ -45,41 +45,12 @@ typedef int TSC_GroupStatusTypeDef;
 #define ENABLE 1
 #define TSC_GROUP_COMPLETED 1
 u32 _chanios;
-void HAL_TSC_IOConfig(int* htsc, TSC_IOConfigTypeDef* config) {
-	_chanios = config->ChannelIOs;
-}
-void HAL_TSC_IODischarge(int* htsc, int enable) {
-}
-void HAL_TSC_Start(int* htsc) {
-}
-void HAL_TSC_Stop(int* htsc) {
-}
-TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(int* htsc, int groupidx) {
-	return TSC_GROUP_COMPLETED;
-}
-short HAL_TSC_GroupGetValue(int* htsc, int groupidx) {
-	// hacked so groupidx is actually 0-35 sensor idx
-	groupidx %= 18;
-	int fingeridx = groupidx / 2;
-	extern int emutouch[9][2];
-	int pos = emutouch[fingeridx][1];
-	int pressure = emutouch[fingeridx][0];
-	int a = pressure * (2048 - pos);
-	int b = pressure * (pos);
-	if (fingeridx == 8) {
-		int t = a;
-		a = b;
-		b = t; // oops I swapped the pins
-	}
-	if (groupidx & 1)
-		a = b;
-	a >>= 10;
-	a += 2048;
-	//	if (groupidx == 0)
-	//		printf("hello finger 0 %d %d = %d\n", pos, pressure, (2048 * 2048) / a);
-	a += rand() & 31;
-	return (2048 * 2048) / a;
-}
+void HAL_TSC_IOConfig(int* htsc, TSC_IOConfigTypeDef* config);
+void HAL_TSC_IODischarge(int* htsc, int enable);
+void HAL_TSC_Start(int* htsc);
+void HAL_TSC_Stop(int* htsc);
+TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(int* htsc, int groupidx);
+short HAL_TSC_GroupGetValue(int* htsc, int groupidx);
 #endif
 
 u8 get_touch_frame(void);

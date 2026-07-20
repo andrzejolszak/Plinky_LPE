@@ -17,7 +17,6 @@
 #include <thread>
 #include "pffft.h"
 #include <portaudio.h>
-#include "../Core/Src/plinky/plinky.h"
 
 #ifdef _WIN32
 
@@ -33,20 +32,6 @@
 #endif
 
 #endif // _WIN32
-
-#ifdef EMU
-#include <stdint.h>
-#ifdef _WIN32
-#include <Windows.h>
-#include <io.h>
-static inline void HAL_Delay(int ms) {
-	Sleep(ms);
-}
-#else // wasm?
-static inline void HAL_Delay(int ms) {
-}
-#endif
-#endif
 
 #ifdef EMU
 #ifdef _WIN32
@@ -109,11 +94,6 @@ static inline void tc_init(void) {
 
 extern "C" {
 
-
-	void spi_update_dac(int chan) {
-		resetspistate();
-	}
-
 #include "../Core/Src/plinky/hardware/adc_dac.h"
 #include "../Core/Src/plinky/data/tables.h"
     extern const short wavetable[WT_LAST][WAVETABLE_SIZE];
@@ -153,7 +133,6 @@ void FinishWAVHeader(FILE* f, u32 fs, u32 chans) {
 	fclose(f);
 }
 FILE* wavfile;
-extern "C" int getheadphonevol(void);
 
 #ifdef STRETCH_PROTO
 #define WINDOWSIZE 16384
@@ -245,7 +224,7 @@ int pacb( const void *input,
 	u32 temp[BLOCK_SAMPLES];
 	static int half;
 	half = 1 - half;
-	float hpvol = getheadphonevol() * (1.f/32768.f/63.f);
+	float hpvol = get_volume() * (1.f / 32768.f / 63.f);
 #define PI 3.1415926535897932384626433832795f
 	{
 		float* src = (float*)input;
@@ -264,7 +243,7 @@ int pacb( const void *input,
 			*dst++ = (short)(r * (32767.f));
 		}
 	}
-	uitick(temp, audioin, half);
+	plinky_codec_tick(temp, audioin);
 	float *dst=(float*)output;
 	short* src = (short*)temp;
 	for (int i=0;i<BLOCK_SAMPLES;++i) {
@@ -1206,9 +1185,9 @@ void EmuFrame() {
 	ImGui::SameLine();
 	static float prevencraw = encraw;
 
-	encbtn = Knob("Enc", encraw, nullptr, 0.f, 24.f * 4.f, ImGui::GetColorU32(ImGuiCol_FrameBg), 96.f);
+	encoder_pressed = Knob("Enc", encraw, nullptr, 0.f, 24.f * 4.f, ImGui::GetColorU32(ImGuiCol_FrameBg), 96.f);
 	int encdelta = (encraw - prevencraw) + 0.5f;
-	encval += encdelta;
+	encoder_value += encdelta;
 	prevencraw += encdelta;
 	//	printf("%d\n", encval);
 
@@ -1347,11 +1326,11 @@ void EmuFrame() {
 	float volhisto[9 * 8];
 	float pitchhisto[5 * 8];
 	float knobhisto[(65 * 2)];
-	int step = cur_step;
+	int step = cur_seq_step;
 	int q = (step / 16) & 3;
 	for (int i = 0; i < 8; ++i) {
 		// This type, vs. params FingerRecord
-		PatternStringStep* fr = &rampattern[q].steps[(step & 15)][i];
+		PatternStringStep* fr = &cur_pattern_qtr[q].steps[(step & 15)][i];
 		for (int j = 0; j < 8; ++j) {
 			volhisto[i * 9 + j] = (float)fr->pres[j] + 10;
 		}
@@ -1363,7 +1342,7 @@ void EmuFrame() {
 	}
 	for (int k = 0; k < 2; ++k) {
 		for (int j = 0; j < 64; ++j) {
-			knobhisto[k * 65 + j] = (float)rampattern[q].autoknob[(cur_step & 8) * 8 + j][k] + 128;
+			knobhisto[k * 65 + j] = (float)cur_pattern_qtr[q].autoknob[(cur_seq_step & 8) * 8 + j][k] + 128;
 		}
 	}
 	ImGui::SetNextItemWidth(200);
@@ -1458,7 +1437,7 @@ void EmuFrame() {
 			static int half = 0;
 			u32 temp[256];
 			u32 audioin[256] = {};
-			uitick(temp, audioin, half);
+			plinky_codec_tick(temp, audioin);
 			half = 1 - half;
 		}
 	}

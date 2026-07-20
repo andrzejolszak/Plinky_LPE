@@ -5,7 +5,7 @@
 #define EXPANDER_MAX 0xfff
 #define EXPANDER_GAIN 0.715f
 
-static u16 expander_out[4] = {EXPANDER_ZERO, EXPANDER_ZERO, EXPANDER_ZERO, EXPANDER_ZERO};
+u16 expander_out[4] = {EXPANDER_ZERO, EXPANDER_ZERO, EXPANDER_ZERO, EXPANDER_ZERO};
 
 u16 get_expander_lfo_data(u8 lfo_id) {
 	return expander_out[lfo_id];

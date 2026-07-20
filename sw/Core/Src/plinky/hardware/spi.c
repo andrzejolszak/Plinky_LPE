@@ -27,6 +27,46 @@ int spi_readid(void) {
 }
 void spi_setchip(uint32_t addr) {
 }
+
+void init_spi(void) {
+	spi_state = 0;
+	alex_dma_mode = false;
+}
+static void setup_spi_alex_dma(u32 tx_addr, u32 rx_addr, int len) {
+	reset_spi_state();
+}
+
+void reset_spi_state(void) {
+	spi_state = 0;
+	alex_dma_mode = false;
+}
+
+#define LAST_GRAIN_SPI_STATE 32
+
+void spi_update_dac(int dac_chan) {
+	static u16 dac_dummy;
+	static u16 dac_cmd;
+	spi_state = LAST_GRAIN_SPI_STATE + dac_chan + 1; // the NEXT state
+	u16 data = get_expander_lfo_data(dac_chan & 3);
+	dac_cmd = (2 << 14) + ((dac_chan & 3) << 12) + (data & 0xfff);
+	dac_cmd = (dac_cmd >> 8) | (dac_cmd << 8);
+	setup_spi_alex_dma((u32)&dac_cmd, (u32)&dac_dummy, 2);
+}
+
+void spi_tick(void) {
+	if (spi_state == 0) {
+		if (USING_SAMPLER)
+			spi_readgrain_dma(0); // kick off the dma for next time
+		else
+			spi_update_dac(0); // just update dac when not in sampler mode
+	}
+}
+
+void spi_ready_for_sampler(u8 grain_id) {
+	while (spi_state && spi_state <= grain_id + 2)
+		;
+}
+
 int spi_waitnotbusy(const char* msg, void (*callback)(void)) {
 	return 0;
 }
@@ -100,7 +140,7 @@ int spi_readgrain_dma(int gi) {
 
 	if (len > 2)
 		memcpy(((u8*)&grain_buf[start]) + 4, _flashram + (addr & (MAX_SAMPLE_LEN * 8 - 1)), len * 2 - 4);
-	spi_read_done();
+
 	return 0;
 }
 #else
@@ -132,7 +172,7 @@ static void spi_release_cs(void) {
 	SPI_PORT->BSRR = SPI_CS1_PIN_ | SPI_CS0_PIN_;
 }
 
-static void reset_spi_state(void) {
+void reset_spi_state(void) {
 	spi_state = 0;
 	alex_dma_mode = false;
 
@@ -208,24 +248,8 @@ static void setup_spi_alex_dma(u32 tx_addr, u32 rx_addr, int len) { // len is in
 	SET_BIT(hspi2.Instance->CR2, SPI_CR2_TXDMAEN);
 }
 
-static void spi_update_dac(int dac_chan) {
-	static u16 dac_dummy;
-	static u16 dac_cmd;
-	spi_state = LAST_GRAIN_SPI_STATE + dac_chan + 1; // the NEXT state
-	u16 data = get_expander_lfo_data(dac_chan & 3);
-	dac_cmd = (2 << 14) + ((dac_chan & 3) << 12) + (data & 0xfff);
-	dac_cmd = (dac_cmd >> 8) | (dac_cmd << 8);
-
-#ifndef EMU
-	// set expander dac
-	cur_spi_pin = 0;
-	hspi2.Instance->CR1 &= ~(1 | 64);
-	hspi2.Instance->CR1 |= 64;
-	SPI_PORT->BSRR = SPI_CS1_PIN_ | SPI_CS0_PIN_;
-	GPIOA->BRR = 1 << 8; // dac cs low
-#endif
-
-	setup_spi_alex_dma((u32)&dac_cmd, (u32)&dac_dummy, 2);
+void spi_update_dac(int dac_chan) {
+	reset_spi_state();
 }
 
 static int spi_readgrain_dma(int grain_id) {

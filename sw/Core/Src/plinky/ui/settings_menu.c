@@ -264,7 +264,9 @@ void settings_menu_actions(void) {
 	case I_REBOOT:
 		oled_clear();
 		oled_flip();
+#ifndef EMU
 		HAL_NVIC_SystemReset();
+#endif
 		break;
 	case I_TOUCH_CALIB:
 		touch_calib(FLASH_CALIB_COMPLETE);

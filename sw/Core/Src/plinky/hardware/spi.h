@@ -20,6 +20,7 @@ extern volatile u8 spi_state;
 extern u8 spi_bit_tx[256 + 4];
 int spi_erase64k(u32 addr, void (*callback)(u8), u8 param);
 int spi_write256(u32 addr);
+void reset_spi_state(void);
 
 static inline void spi_delay(void) {
 	volatile static u8 dummy;

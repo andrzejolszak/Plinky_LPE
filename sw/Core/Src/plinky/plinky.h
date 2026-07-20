@@ -46,6 +46,8 @@ extern HardwareVersion hw_version;
 extern UIMode ui_mode;
 extern CalibMode calib_mode;
 
-void plinky_init(void);
+#ifndef  EMU
 void plinky_codec_tick(u32* audio_out, u32* audio_in);
+void plinky_init(void);
 void plinky_loop(void);
+#endif

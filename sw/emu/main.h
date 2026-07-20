@@ -14,6 +14,65 @@
 #define EMSCRIPTEN_KEEPALIVE
 #endif
 
+#ifdef EMU
+#include <Windows.h>
+#include <io.h>
+void HAL_Delay(int ms) {
+	Sleep(ms);
+}
+#endif
+
+#ifdef EMU
+int __builtin_popcount(int x) {
+	int c = 0;
+	while (x) {
+		c++;
+		x &= x - 1;
+	}
+	return c;
+}
+int __builtin_popcountll(unsigned long long x) {
+	int c = 0;
+	while (x) {
+		c++;
+		x &= x - 1;
+	}
+	return c;
+}
+int __builtin_ctz(unsigned long long x) {
+	if (!x)
+		return 64;
+	int c = 0;
+	while (!(x & (1ull << c))) {
+		c++;
+	}
+	return c;
+}
+int __builtin_ctzll(unsigned long long x) {
+	if (!x)
+		return 64;
+	int c = 0;
+	while (!(x & (1ull << c))) {
+		c++;
+	}
+	return c;
+}
+#endif
+
+#ifdef EMU
+#define STEREOUNPACK(lr) int lr##l = (s16)lr, lr##r = (s16)(lr >> 16);
+void MONITORPEAK(float* mon, u32 stereoin) {
+	STEREOUNPACK(stereoin);
+	float peak = (1.f / 32768.f) * maxi(abs(stereoinl), abs(stereoinr));
+	if (peak > *mon)
+		*mon = peak;
+	else
+		*mon += (peak - *mon) * 0.0001f;
+}
+#else
+#define MONITORPEAK(mon, stereoin)
+#endif
+
 #define BLOCK_SAMPLES 64
 extern "C" {
 
@@ -54,9 +113,9 @@ extern int16_t accel_raw[3];
 extern float accel_lpf[2];
 extern float accel_smooth[2];
 
-extern unsigned short expander_out[4];
+extern "C" unsigned short expander_out[4];
 
-void resetspistate(void);
+extern "C" void reset_spi_state(void);
 
 /// <summary>
 /// 
@@ -75,9 +134,8 @@ void resetspistate(void);
 void emu_setadc(float araw, float braw, float pitchcv, float gatecv, float xcv, float ycv, float acv, float bcv, int gateforce,
                 int pitchsense, int gatesense);
 
-void plinky_frame();
-// void plinky_init();
-void uitick(u32 *dst, const u32 *src, int half);
+extern "C" void plinky_init(void);
+extern "C" void plinky_codec_tick(u32* audio_out, const u32* audio_in);
 
 /// <summary>
 /// Gain history
@@ -94,12 +152,12 @@ static float encraw = 0.f;
 /// <summary>
 /// The encoder value. Speed/delta semantics, comes back to ~2 when not moving
 /// </summary>
-extern volatile int encval;
+extern volatile int encoder_value;
 
 /// <summary>
 /// The encoder buttong bool 0/1
 /// </summary>
-extern volatile u8 encbtn;
+extern volatile bool encoder_pressed;
 
 // A and B knobs EMU
 static float araw = 0.5f;
@@ -135,8 +193,7 @@ void ApplyUF2File(const char *fname);
 extern int samplelen;
 
 extern Preset rampreset;
-extern PatternQuarter rampattern[4];
-extern s8 cur_step;
+extern PatternQuarter cur_pattern_qtr[4];
 
 // Button LEDs
 extern u8 emuleds[9][8];
@@ -146,7 +203,7 @@ extern short _flashram[8 * 2 * 1024 * 1024];
 extern int emutouch[9][2];
 
 // Time
-extern uint64_t millisEmu;
+extern "C" uint64_t millisEmu;
 
 extern "C" float life_damping;
 extern "C" float life_force;
@@ -170,13 +227,14 @@ typedef struct CalibResult {
 
 extern "C" CalibResult calibresults[18];
 extern "C" int flash_readcalib(void);
+extern "C" s8 cur_seq_step;
+extern "C" void plinky_frame(void);
 
-int getheadphonevol(void);
+extern "C" u16 get_volume(void);
 uint32_t wang_hash(uint32_t seed);
 int main(int argc, char **argv);
 void Shutdown();
 void ApplyUF2File(const char *fname);
-void plinky_frame(void);
 void SleepMillis(int millis);
 void EmuFrame();
 void flip(void);

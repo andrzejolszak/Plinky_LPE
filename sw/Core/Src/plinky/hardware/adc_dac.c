@@ -15,6 +15,44 @@ extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim3;
 #endif
 
+#ifdef EMU
+void SetOutputCVEmu(int chan, int data) {
+	emucvout[chan][emucvouthist / 4] = maxf(emucvout[chan][emucvouthist / 4], data * (1.f / 65535.f));
+}
+#endif
+
+inline void send_cv_clock(bool high) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_CLOCK, high);
+#else
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, high ? CV_OUT_5V : 0);
+#endif
+}
+
+inline void send_cv_trigger(bool high) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_TRIGGER, high);
+#else
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, high ? CV_OUT_5V : 0);
+#endif
+}
+
+inline void send_cv_gate(bool high) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_GATE, high);
+#else
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, high ? CV_OUT_5V : 0);
+#endif
+}
+
+inline void send_cv_pressure(u16 data) {
+#ifdef EMU
+	SetOutputCVEmu(OUT_PRESSURE, data);
+#else
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, (data * CV_OUT_5V) >> 16);
+#endif
+}
+
 #define ADC_CHANS 8
 #define ADC_SAMPLES 8
 

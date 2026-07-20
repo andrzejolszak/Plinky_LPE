@@ -24,7 +24,7 @@ static u32 last_step_ticks = 0;  // duration
 static u32 ticks_since_step = 0; // current duration
 
 // pattern
-static s8 cur_seq_step = 0;  // current step, modulated by step offset
+s8 cur_seq_step = 0;  // current step, modulated by step offset
 static u8 cur_seq_start = 0; // where we start playing, modulated by step offset
 static u8 cued_ptn_start = 255;
 static u64 random_steps_avail = 0; // bitmask of unplayed steps in random modes

@@ -25,6 +25,51 @@
 #include "usb/usb.h
 #endif
 
+#ifdef EMU
+#include <windows.h>
+#define EmuDebugLog DebugLog
+LARGE_INTEGER pffreq, pfstart;
+uint64_t millisEmu = 0;
+inline uint64_t emu_rdtsc(void) {
+	if (millisEmu > 0) {
+		return millisEmu * 80000;
+	}
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&now);
+	return (((now.QuadPart - pfstart.QuadPart) * 80000000) / pffreq.QuadPart);
+}
+#define RDTSC() emu_rdtsc()
+inline u32 millis(void) {
+	return RDTSC() / 80000;
+}
+inline u32 micros(void) {
+	return RDTSC() / 80;
+}
+inline void tc_init(void) {
+	QueryPerformanceFrequency(&pffreq);
+	QueryPerformanceCounter(&pfstart);
+}
+u32 clz(u32 val) {
+	u8 res = 0;
+	if (!val)
+		return 32;
+	while (!(val & 0x80000000)) {
+		res++;
+		val <<= 1;
+	}
+	return res;
+}
+
+#else
+// time
+inline u32 millis(void) {
+	return HAL_GetTick();
+}
+inline u32 micros(void) {
+	return TIM5->CNT;
+}
+#endif
+
 u32 debug_time[TIME_LOG_ITEMS];
 const char* debug_label[TIME_LOG_ITEMS] = {"ts",     "au_pre", "pr_ram", "seq",    "s_tch", "prm_t",
                                            "sp_ram", "vcs",    "spi",    "au_pst", "frame", "fps"};
@@ -97,21 +142,7 @@ void emu_setadc(float araw, float braw, float pitchcv, float gatecv, float xcv, 
 }
 
 #ifdef EMU
-#define TWENTY_OVER_LOG2_10 6.02059991328f // (20.f/log2(10.f));
-static inline float lin2db(float lin) { return log2f(lin) * TWENTY_OVER_LOG2_10; }
-static inline float db2lin(float db) { return exp2f(db * (1.f / TWENTY_OVER_LOG2_10)); }
-#define STEREOUNPACK(lr) int lr##l = (s16)lr, lr##r = (s16)(lr >> 16);
 float m_compressor, m_dry, m_audioin, m_dry2wet, m_delaysend, m_delayreturn, m_reverbin, m_reverbout, m_fxout, m_output;
-void MONITORPEAK(float* mon, u32 stereoin) {
-	STEREOUNPACK(stereoin);
-	float peak = (1.f / 32768.f) * maxi(abs(stereoinl), abs(stereoinr));
-	if (peak > *mon)
-		*mon = peak;
-	else
-		*mon += (peak - *mon) * 0.0001f;
-}
-#else
-#define MONITORPEAK(mon, stereoin)
 #endif
 
 static void define_hardware_version(void) {
@@ -212,7 +243,9 @@ void plinky_init(void) {
 	init_spi();
 	init_memory();
 	init_midi();
+#ifndef EMU
 	init_usb();
+#endif
 	init_leds();
 	launch_calib(0);
 	leds_bootswish();
@@ -333,6 +366,45 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	log_time();
 }
 
+void plinky_frame(void) {
+	// set output volume
+	codec_update_volume();
+	// handle spi flash writes for the sampler
+	if (ui_mode == UI_SAMPLE_EDIT) {
+		switch (sampler_mode) {
+		case SM_ERASING:
+			// this fully blocks the loop until the sample is erased, also draws its own visuals
+			clear_flash_sample();
+			break;
+		case SM_RECORDING:
+		case SM_STOPPING1:
+		case SM_STOPPING2:
+		case SM_STOPPING3:
+		case SM_STOPPING4:
+			// pump blocks of the ram delay buffer to spi flash
+			write_flash_sample_blocks();
+		default:
+			break;
+		}
+	}
+	// visuals
+	take_param_snapshots();
+	draw_oled_visuals();
+	draw_led_visuals();
+	// read accelerometer values
+	accel_read();
+	// ram updates and writing ram to flash
+	memory_frame();
+
+#ifndef  EMU
+	// web editor and usd midi data
+	usb_frame();
+#endif
+
+	// execute actions triggered by setting menu
+	settings_menu_actions();
+}
+
 // this is the main loop, only code that is blocking in some way lives here
 #if defined(TIME_LOGGING) || defined(FPS_WINDOW)
 void plinky_loop(void) {
@@ -357,37 +429,6 @@ void plinky_loop(void) {
 void plinky_loop(void) {
 	while (1) {
 #endif
-		// set output volume
-		codec_update_volume();
-		// handle spi flash writes for the sampler
-		if (ui_mode == UI_SAMPLE_EDIT) {
-			switch (sampler_mode) {
-			case SM_ERASING:
-				// this fully blocks the loop until the sample is erased, also draws its own visuals
-				clear_flash_sample();
-				break;
-			case SM_RECORDING:
-			case SM_STOPPING1:
-			case SM_STOPPING2:
-			case SM_STOPPING3:
-			case SM_STOPPING4:
-				// pump blocks of the ram delay buffer to spi flash
-				write_flash_sample_blocks();
-			default:
-				break;
-			}
-		}
-		// visuals
-		take_param_snapshots();
-		draw_oled_visuals();
-		draw_led_visuals();
-		// read accelerometer values
-		accel_read();
-		// ram updates and writing ram to flash
-		memory_frame();
-		// web editor and usd midi data
-		usb_frame();
-		// execute actions triggered by setting menu
-		settings_menu_actions();
+		plinky_frame();
 	}
 }
