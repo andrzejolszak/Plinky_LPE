@@ -1,5 +1,8 @@
 // include tinyusb, undo their bool def
+#ifndef EMU
 #include "tusb.h"
+#endif
+
 #undef bool
 
 #include "midi.h"
@@ -11,13 +14,16 @@
 #include "synth/audio.h"
 #include "synth/lfos.h"
 #include "synth/params.h"
+#include "synth/param_defs.h"
 #include "synth/synth.h"
 #include "synth/time.h"
 #include "ui/oled_viz.h"
 #include "usb/usb.h"
 
 // midi uart, lives in main.c
+#ifndef EMU
 extern UART_HandleTypeDef huart3;
+#endif
 
 typedef enum MidiStringState {
 	MS_UNPRESSED,
@@ -83,7 +89,7 @@ static MidiString midi_string[NUM_STRINGS];
 static u8 channel_pressure;
 static u14 channel_pitchbend;
 static s32 channel_pitchbend_pitch;
-static MpeZone mpe_zone[2] = {};
+static MpeZone mpe_zone[2] = {0};
 static u8 non_mpe_start_string_in = 0;
 static u8 high_mpe_start_string_in = NUM_STRINGS;
 static u8 non_mpe_start_string_out = 0;
@@ -97,8 +103,8 @@ static u14 nrpn_id[NUM_STRINGS] = {{UINT14_MAX}, {UINT14_MAX}, {UINT14_MAX}, {UI
                                    {UINT14_MAX}, {UINT14_MAX}, {UINT14_MAX}, {UINT14_MAX}};
 static u14 rpn_id[NUM_STRINGS] = {{UINT14_MAX}, {UINT14_MAX}, {UINT14_MAX}, {UINT14_MAX},
                                   {UINT14_MAX}, {UINT14_MAX}, {UINT14_MAX}, {UINT14_MAX}};
-static u14 n_rpn_value[NUM_STRINGS] = {};             // shared value for nrpn and rpn
-static bool received_n_rpn_data[NUM_STRINGS][2] = {}; // is the full 14 bit value received?
+static u14 n_rpn_value[NUM_STRINGS] = {0};             // shared value for nrpn and rpn
+static bool received_n_rpn_data[NUM_STRINGS][2] = {0}; // is the full 14 bit value received?
 static u8 rpn_last_received = 0;                      // was rpn or nrpn number last received?
 
 // cue midi out
@@ -114,8 +120,8 @@ static u8 thru_buffer[THRU_BUFFER_SIZE][3];
 static u8 thru_buffer_head = 0;
 static u8 thru_buffer_tail = 0;
 static u8 thru_buffer_count = 0;
-static u8 send_param_val[NUM_PARAMS] = {};
-static u8 send_multi_param_val[NUM_MULTI_PARAMS] = {};
+static u8 send_param_val[NUM_PARAMS] = {0};
+static u8 send_multi_param_val[NUM_MULTI_PARAMS] = {0};
 static Param sending_param_id = NUM_PARAMS;
 static u8 sending_param_progress = 255;
 
@@ -220,6 +226,9 @@ static void register_press(u8 string_id, u8 note, u8 velocity, u16 position) {
 
 // send midi msg to uart and usb, returns false if buffer too full
 static bool send_midi_msg(u8 status, u8 data1, u8 data2) {
+#ifdef EMU
+	return false;
+#else
 	u8 num_bytes = num_midi_bytes(status);
 	// exit if serial buffer full
 	if (num_bytes > MIDI_SEND_BUFFER_FREE)
@@ -265,6 +274,7 @@ static bool send_midi_msg(u8 status, u8 data1, u8 data2) {
 #endif
 
 	return true;
+#endif
 }
 
 static bool send_double_midi_msg(u8 status1, u8 data1_1, u8 data1_2, u8 status2, u8 data2_1, u8 data2_2) {
@@ -278,6 +288,9 @@ static bool send_double_midi_msg(u8 status1, u8 data1_1, u8 data1_2, u8 status2,
 }
 
 static void midi_push_cc(u8 data1, u8 data2) {
+#ifdef EMU
+	return;
+#else
 	// fill buffer
 	static u8 buffer[4];
 	buffer[0] = MIDI_CIN_CONTROL_CHANGE;
@@ -294,6 +307,7 @@ static void midi_push_cc(u8 data1, u8 data2) {
 	// send buffer to usb
 	while (tud_midi_mounted() && !tud_midi_packet_write(buffer))
 		;
+#endif
 }
 
 static bool send_nrpn(u8 nrpn_msb, u8 nrpn_lsb, u14 value, bool force) {
@@ -580,6 +594,9 @@ static void cue_midi_out(void) {
 	return;
 #endif
 
+#ifdef EMU
+	return false;
+#else
 	// exit if the uart is not ready
 	if (huart3.TxXferCount || pushing_preset)
 		return;
@@ -736,6 +753,7 @@ static void cue_midi_out(void) {
 		buffer_free = cue_midi_string_out();
 		strings_checked++;
 	} while (buffer_free && midi_send_head == initial_send_head && strings_checked < NUM_STRINGS);
+#endif
 }
 
 static void try_apply_n_rpn(bool is_rpn, u8 n_rpn_string, bool mpe_member) {
@@ -1261,6 +1279,9 @@ static void process_midi_msg(u8 status, u8 data1, u8 data2) {
 }
 
 void midi_tick(void) {
+#ifdef EMU
+	return;
+#else
 	cue_midi_out();
 
 	// send to uart
@@ -1416,6 +1437,7 @@ void midi_tick(void) {
 			}
 		}
 	}
+#endif
 }
 
 void midi_update_mpe_mapping(void) {

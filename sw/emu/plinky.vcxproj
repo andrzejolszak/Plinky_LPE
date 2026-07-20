@@ -104,7 +104,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;EMU;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\andrz\source\repos\Plinky_LPE\sw\Core\Src\plinky;imgui;imgui/gl3w;imgui/glfw/include;portaudio/include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -157,6 +157,7 @@
     <ClCompile Include="..\Core\Src\plinky\hardware\expander.c" />
     <ClCompile Include="..\Core\Src\plinky\hardware\leds.c" />
     <ClCompile Include="..\Core\Src\plinky\hardware\memory.c" />
+    <ClCompile Include="..\Core\Src\plinky\hardware\midi.c" />
     <ClCompile Include="..\Core\Src\plinky\hardware\midi_sysex.c" />
     <ClCompile Include="..\Core\Src\plinky\hardware\spi.c" />
     <ClCompile Include="..\Core\Src\plinky\hardware\touchstrips.c" />
@@ -200,6 +201,7 @@
     <ClInclude Include="..\Core\Src\plinky\hardware\leds.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\memory.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\mem_defs.h" />
+    <ClInclude Include="..\Core\Src\plinky\hardware\midi.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\midi_sysex.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\sensor_defs.h" />
     <ClInclude Include="..\Core\Src\plinky\hardware\spi.h" />

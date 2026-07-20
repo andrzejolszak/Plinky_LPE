@@ -129,6 +129,9 @@
     <ClCompile Include="..\Core\Src\plinky\ui\settings_menu.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\Core\Src\plinky\hardware\midi.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui_impl_glfw.h">
@@ -273,6 +276,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\Core\Src\plinky\gfx\oled\SSD130x.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\hardware\midi.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
