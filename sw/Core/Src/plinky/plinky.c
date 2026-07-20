@@ -60,6 +60,41 @@ u32 clz(u32 val) {
 	return res;
 }
 
+int __builtin_popcount(int x) {
+	int c = 0;
+	while (x) {
+		c++;
+		x &= x - 1;
+	}
+	return c;
+}
+int __builtin_popcountll(unsigned long long x) {
+	int c = 0;
+	while (x) {
+		c++;
+		x &= x - 1;
+	}
+	return c;
+}
+int __builtin_ctz(unsigned long long x) {
+	if (!x)
+		return 64;
+	int c = 0;
+	while (!(x & (1ull << c))) {
+		c++;
+	}
+	return c;
+}
+int __builtin_ctzll(unsigned long long x) {
+	if (!x)
+		return 64;
+	int c = 0;
+	while (!(x & (1ull << c))) {
+		c++;
+	}
+	return c;
+}
+
 #else
 // time
 inline u32 millis(void) {

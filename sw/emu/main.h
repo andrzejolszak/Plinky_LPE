@@ -15,51 +15,6 @@
 #endif
 
 #ifdef EMU
-#include <Windows.h>
-#include <io.h>
-void HAL_Delay(int ms) {
-	Sleep(ms);
-}
-#endif
-
-#ifdef EMU
-int __builtin_popcount(int x) {
-	int c = 0;
-	while (x) {
-		c++;
-		x &= x - 1;
-	}
-	return c;
-}
-int __builtin_popcountll(unsigned long long x) {
-	int c = 0;
-	while (x) {
-		c++;
-		x &= x - 1;
-	}
-	return c;
-}
-int __builtin_ctz(unsigned long long x) {
-	if (!x)
-		return 64;
-	int c = 0;
-	while (!(x & (1ull << c))) {
-		c++;
-	}
-	return c;
-}
-int __builtin_ctzll(unsigned long long x) {
-	if (!x)
-		return 64;
-	int c = 0;
-	while (!(x & (1ull << c))) {
-		c++;
-	}
-	return c;
-}
-#endif
-
-#ifdef EMU
 #define STEREOUNPACK(lr) int lr##l = (s16)lr, lr##r = (s16)(lr >> 16);
 void MONITORPEAK(float* mon, u32 stereoin) {
 	STEREOUNPACK(stereoin);

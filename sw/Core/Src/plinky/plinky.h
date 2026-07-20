@@ -5,6 +5,16 @@
 #define GOLDEN_CHECKSUM 0xb5a7228c
 
 #ifdef EMU
+#include <io.h>
+#include <windows.h>
+static inline void HAL_Delay(int ms) {
+	Sleep(ms);
+}
+int __builtin_popcount(int x);
+int __builtin_popcountll(unsigned long long x);
+int __builtin_ctz(unsigned long long x);
+int __builtin_ctzll(unsigned long long x);
+
 float powerout; // squared power
 float gainhistoryrms[512];
 int ghi;
