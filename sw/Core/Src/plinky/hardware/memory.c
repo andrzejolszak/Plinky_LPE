@@ -1158,7 +1158,7 @@ FlashCalibType flash_read_calib(void) {
 #ifdef EMU
 	openflash();
 #endif
-#if defined EMU // WASM?
+#if defined EMU
 #ifndef CALIB_TEST
 	if (1) {
 		// fake calib results

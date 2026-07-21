@@ -14,9 +14,7 @@ u8 spi_bit_tx[256 + 4];
 #ifdef EMU
 extern s16 _flashram[8 * MAX_SAMPLE_LEN];
 s16 _flashram[8 * MAX_SAMPLE_LEN];
-#ifndef WASM
 FILE* flashfile = 0;
-#endif
 void spi_wait(void) {
 }
 int spi_writeenable(void) {
@@ -72,13 +70,11 @@ int spi_waitnotbusy(const char* msg, void (*callback)(void)) {
 }
 int spi_erase64k(u32 addr, void (*callback)(void)) {
 	memset(_flashram + addr / 2, -1, 65536);
-#ifndef WASM
 	if (flashfile) {
 		fseek(flashfile, addr, 0);
 		fwrite(_flashram + addr / 2, 1, 65536, flashfile);
 		fflush(flashfile);
 	}
-#endif
 	for (int i = 0; i < 16; ++i) {
 		HAL_Delay(2);
 		if (callback)
@@ -87,7 +83,6 @@ int spi_erase64k(u32 addr, void (*callback)(void)) {
 	return 0;
 }
 void spiopen(void) {
-#ifndef WASM
 	if (!flashfile) {
 		flashfile = fopen("flashspi.raw", "r+b");
 		if (!flashfile) {
@@ -105,19 +100,16 @@ void spiopen(void) {
 			fread(_flashram, 16, MAX_SAMPLE_LEN, flashfile);
 		}
 	}
-#endif
 }
 
 int spi_write256(u32 addr) {
 	spiopen();
 	memcpy(_flashram + addr / 2, spi_bit_tx + 4, 256);
-#ifndef WASM
 	if (flashfile) {
 		fseek(flashfile, addr, 0);
 		fwrite(_flashram + addr / 2, 1, 256, flashfile);
 		fflush(flashfile);
 	}
-#endif
 	return 0;
 }
 int spi_read256(u32 addr) {

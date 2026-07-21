@@ -8,12 +8,6 @@
 
 #define EMU
 
-#ifdef WASM
-#include <emscripten.h>
-#else
-#define EMSCRIPTEN_KEEPALIVE
-#endif
-
 #ifdef EMU
 #define STEREOUNPACK(lr) int lr##l = (s16)lr, lr##r = (s16)(lr >> 16);
 void MONITORPEAK(float* mon, u32 stereoin) {

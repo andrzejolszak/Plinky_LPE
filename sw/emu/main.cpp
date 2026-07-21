@@ -30,51 +30,7 @@
 #pragma comment(lib, "portaudio/lib/portaudio_x86.lib")
 #pragma comment(lib, "imgui/glfw/lib-vc2010-32/glfw3.lib") // for imgui rendering
 #endif
-
 #endif // _WIN32
-
-#ifdef EMU
-#ifdef _WIN32
-
-#elif defined(__APPLE__)
-#include <mach/mach_time.h>
-uint64_t time_start;
-mach_timebase_info_data_t timebase_info;
-static inline uint64_t emu_rdtsc(void) {
-	uint64_t time_now = mach_absolute_time();
-	uint64_t time_elapsed = time_now - time_start;
-	return (time_elapsed * timebase_info.numer * 80) / (1000 * timebase_info.denom);
-}
-#define RDTSC() emu_rdtsc()
-static inline u32 millis(void) {
-	return RDTSC() / 80000;
-}
-static inline u32 micros(void) {
-	return RDTSC() / 80;
-}
-static inline void tc_init(void) {
-	mach_timebase_info(&timebase_info);
-	time_start = mach_absolute_time();
-}
-#else // wasm
-int _millis;
-#define RDTSC() (0)
-static inline u32 millis(void) {
-	return _millis;
-}
-static inline u32 micros(void) {
-	return _millis * 1000;
-}
-static inline void tc_init(void) {
-}
-#endif
-#else // hw
-#define RDTSC() (DWT->CYCCNT)
-static inline void tc_init(void) {
-	DWT->CTRL |= 1;
-	DWT->CYCCNT = 0; // reset the counter
-}
-#endif
 
 // #define STRETCH_PROTO
 
