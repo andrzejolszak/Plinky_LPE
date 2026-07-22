@@ -597,12 +597,16 @@ void init_memory(void) {
 		// finalize
 		sys_params.version = init_sys_params.version;
 		log_ram_edit(SEG_SYS_PARAMS);
+#ifndef EMU
 		HAL_Delay(500);
+#endif
 		oled_clear();
 		draw_str_ctr(0, font, "updated");
 		draw_str_ctr(16, font, "system settings");
 		oled_flip();
+#ifndef EMU
 		HAL_Delay(2000);
+#endif
 	}
 	codec_update_volume();
 
