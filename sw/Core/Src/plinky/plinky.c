@@ -22,7 +22,7 @@
 #include "ui/settings_menu.h"
 
 #ifndef EMU
-#include "usb/usb.h
+#include "usb/usb.h"
 #endif
 
 #ifdef EMU
@@ -93,15 +93,6 @@ int __builtin_ctzll(unsigned long long x) {
 		c++;
 	}
 	return c;
-}
-
-#else
-// time
-inline u32 millis(void) {
-	return HAL_GetTick();
-}
-inline u32 micros(void) {
-	return TIM5->CNT;
 }
 #endif
 

@@ -8,6 +8,11 @@
 
 // rj: this module largely has not been cleaned up yet
 
+#ifndef EMU
+short* reverb_ram_buf = (short*)0x10000000; // use ram2 :)
+short* delay_ram_buf = (short*)0x20008000;  // use end of ram1 :)
+#endif
+
 s16 audio_in_peak = 0;
 s16 audio_in_hold = 0;
 ValueSmoother ext_gain_smoother;

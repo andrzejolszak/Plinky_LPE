@@ -15,11 +15,11 @@ static inline float db2lin(float db) {
 #ifdef EMU
 #define RVMASK 16383
 #define DLMASK 32767
-short reverb_ram_buf[RVMASK + 1];
-short delay_ram_buf[DLMASK + 1];
+extern short reverb_ram_buf[RVMASK + 1];
+extern short delay_ram_buf[DLMASK + 1];
 #else
-short* reverb_ram_buf = (short*)0x10000000; // use ram2 :)
-short* delay_ram_buf = (short*)0x20008000;  // use end of ram1 :)
+extern short* reverb_ram_buf;
+extern short* delay_ram_buf;
 #endif
 
 // sampler stuff

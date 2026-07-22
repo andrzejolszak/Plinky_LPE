@@ -62,7 +62,15 @@ typedef union u14 {
 
 #include "plinky.h"
 
-extern inline u32 millis(void);
+#ifndef EMU
+// time
+inline u32 millis(void) {
+	return HAL_GetTick();
+}
+inline u32 micros(void) {
+	return TIM5->CNT;
+}
+#endif
 
 // returns true every [duration] ms
 static inline bool do_every(u32 duration, u32* referenceTime) {

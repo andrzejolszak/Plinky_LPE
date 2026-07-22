@@ -11,7 +11,7 @@
 #include "ui/pad_actions.h"
 
 #ifndef EMU
-#include "usb/web_editor.h
+#include "usb/web_editor.h"
 #endif
 
 // cleanup

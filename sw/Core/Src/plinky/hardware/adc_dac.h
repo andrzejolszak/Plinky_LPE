@@ -47,13 +47,13 @@ void cv_calib(void);
 // 256 * 5 / 6.6 = 194, rounded up so that the measured voltage ends up at 5.00V
 #define CV_OUT_5V 195
 
-inline void send_cv_clock(bool high);
+extern inline void send_cv_clock(bool high);
 
-inline void send_cv_trigger(bool high);
+extern inline void send_cv_trigger(bool high);
 
-inline void send_cv_gate(bool high);
+extern inline void send_cv_gate(bool high);
 
-inline void send_cv_pressure(u16 data);
+extern inline void send_cv_pressure(u16 data);
 
 // #define SENSE1_Pin GPIO_PIN_8
 // #define SENSE1_GPIO_Port GPIOE
