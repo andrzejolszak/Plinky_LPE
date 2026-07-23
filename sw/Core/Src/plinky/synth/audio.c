@@ -8,7 +8,12 @@
 
 // rj: this module largely has not been cleaned up yet
 
-#ifndef EMU
+#ifdef EMU
+#define RVMASK 16383
+#define DLMASK 32767
+short reverb_ram_buf[RVMASK + 1];
+short delay_ram_buf[DLMASK + 1];
+#else
 short* reverb_ram_buf = (short*)0x10000000; // use ram2 :)
 short* delay_ram_buf = (short*)0x20008000;  // use end of ram1 :)
 #endif

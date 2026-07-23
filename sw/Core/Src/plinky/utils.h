@@ -62,6 +62,8 @@ typedef union u14 {
 
 #include "plinky.h"
 
+extern u32 millis(void);
+
 #ifndef EMU
 // time
 inline u32 millis(void) {
