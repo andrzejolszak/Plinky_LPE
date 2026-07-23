@@ -1,0 +1,294 @@
+Building in RELEASE mode
+"CC sw/Core/Src/plinky/plinky.c"
+In file included from sw/Core/Src/plinky/plinky.c:4:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+In file included from sw/Core/Src/plinky/plinky.c:17:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/data/logo.c"
+"CC sw/Core/Src/plinky/data/tables.c"
+"CC sw/Core/Src/plinky/hardware/accelerometer.c"
+"CC sw/Core/Src/plinky/hardware/adc_dac.c"
+In file included from sw/Core/Src/plinky/hardware/adc_dac.c:7:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/hardware/codec.c"
+"CC sw/Core/Src/plinky/hardware/encoder.c"
+"CC sw/Core/Src/plinky/hardware/expander.c"
+"CC sw/Core/Src/plinky/hardware/leds.c"
+"CC sw/Core/Src/plinky/hardware/midi_sysex.c"
+In file included from sw/Core/Src/plinky/hardware/midi_sysex.c:5:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/hardware/midi.c"
+In file included from sw/Core/Src/plinky/hardware/midi.c:18:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/hardware/memory.c"
+In file included from sw/Core/Src/plinky/hardware/memory.c:18:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~
+In file included from sw/Core/Src/plinky/hardware/memory.c:9:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/hardware/spi.c"
+In file included from sw/Core/Src/plinky/hardware/spi.c:4:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/hardware/touchstrips.c"
+"CC sw/Core/Src/plinky/synth/arp.c"
+"CC sw/Core/Src/plinky/synth/audio.c"
+In file included from sw/Core/Src/plinky/synth/audio.c:3:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~
+"CC sw/Core/Src/plinky/synth/lfos.c"
+In file included from sw/Core/Src/plinky/synth/lfos.c:4:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~
+"CC sw/Core/Src/plinky/synth/params.c"
+In file included from sw/Core/Src/plinky/synth/params.c:14:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/synth/sampler.c"
+In file included from sw/Core/Src/plinky/synth/sampler.c:9:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/synth/sequencer.c"
+In file included from sw/Core/Src/plinky/synth/sequencer.c:11:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~
+"CC sw/Core/Src/plinky/synth/synth.c"
+sw/Core/Src/plinky/synth/synth.c: In function 'find_string_for_pitch':
+sw/Core/Src/plinky/synth/synth.c:397:9: warning: "__FLT_MAX__" redefined
+  397 | #define __FLT_MAX__ 3.402823466e+38F
+      |         ^~~~~~~~~~~
+<built-in>: note: this is the location of the previous definition
+In file included from sw/Core/Src/plinky/synth/synth.c:5:
+sw/Core/Src/plinky/hardware/adc_dac.h: At top level:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~
+"CC sw/Core/Src/plinky/synth/time.c"
+In file included from sw/Core/Src/plinky/synth/time.c:2:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~
+"CC sw/Core/Src/plinky/ui/led_viz.c"
+In file included from sw/Core/Src/plinky/ui/led_viz.c:2:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+In file included from sw/Core/Src/plinky/ui/led_viz.c:10:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~
+"CC sw/Core/Src/plinky/ui/oled_viz.c"
+In file included from sw/Core/Src/plinky/ui/oled_viz.c:11:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/ui/pad_actions.c"
+In file included from sw/Core/Src/plinky/ui/pad_actions.c:10:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+"CC sw/Core/Src/plinky/ui/settings_menu.c"
+In file included from sw/Core/Src/plinky/ui/settings_menu.c:3:
+sw/Core/Src/plinky/hardware/adc_dac.h:56:20: warning: inline function 'send_cv_pressure' declared but never defined
+   56 | extern inline void send_cv_pressure(u16 data);
+      |                    ^~~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:54:20: warning: inline function 'send_cv_gate' declared but never defined
+   54 | extern inline void send_cv_gate(bool high);
+      |                    ^~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:52:20: warning: inline function 'send_cv_trigger' declared but never defined
+   52 | extern inline void send_cv_trigger(bool high);
+      |                    ^~~~~~~~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:50:20: warning: inline function 'send_cv_clock' declared but never defined
+   50 | extern inline void send_cv_clock(bool high);
+      |                    ^~~~~~~~~~~~~
+In file included from sw/Core/Src/plinky/ui/settings_menu.c:8:
+sw/Core/Src/plinky/synth/synth.h:15:12: warning: 'grain_buf_end' defined but not used [-Wunused-variable]
+   15 | static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+      |            ^~~~~~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:14:12: warning: 'grain_pos' defined but not used [-Wunused-variable]
+   14 | static s32 grain_pos[NUM_GRAINS];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/synth/synth.h:13:12: warning: 'grain_buf' defined but not used [-Wunused-variable]
+   13 | static s16 grain_buf[GRAINBUF_BUDGET];
+      |            ^~~~~~~~~
+sw/Core/Src/plinky/hardware/adc_dac.h:26:12: warning: 'adc_buffer' defined but not used [-Wunused-variable]
+   26 | static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+      |            ^~~~~~~~~~

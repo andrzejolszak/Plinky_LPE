@@ -365,6 +365,10 @@ static u16 string_center_pitch(u8 string_id) {
 	return OCTS_TO_PITCH(oct) + string_root_pitch(string_id) + ((pitch3 + pitch4) >> 1);
 }
 
+#ifdef EMU
+#define __FLT_MAX__ 3.402823466e+38F
+#endif
+
 u8 find_string_for_pitch(u16 pitch, u8 from_string, u8 to_string) {
 	// find desired string: center pitch closest to pitch
 	u8 desired_string = from_string;
@@ -393,8 +397,6 @@ u8 find_string_for_pitch(u16 pitch, u8 from_string, u8 to_string) {
 	// return found string, if any
 	if (best_string != 255)
 		return best_string;
-
-#define __FLT_MAX__ 3.402823466e+38F
 
 	// find quietest non-touched string
 	float min_vol = __FLT_MAX__;
