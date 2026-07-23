@@ -367,20 +367,21 @@ void send_cv_pitch(bool pitch_hi, u16 pitch) {
 
 	// send to dac
 #ifdef EMU
-	if (pitch_hi) {
-		SetOutputCVEmu(OUT_PITCHHI, dac_value);
-
-		emucvouthist++;
-		emucvouthist &= 1023;
-		if ((emucvouthist & 3) == 0) {
-			for (int c = 0; c < 6; ++c)
-				emucvout[c][emucvouthist / 4] = 0;
-		}
-	}
-	else {
-		SetOutputCVEmu(OUT_PITCHLO, dac_value);
-		emupitchloopback = (dac_value - 52100.f) / -9334.83f;
-	}
+	// TODO EMU?
+	// if (pitch_hi) {
+	// 	SetOutputCVEmu(OUT_PITCHHI, dac_value);
+	// 
+	// 	// emucvouthist++;
+	// 	// emucvouthist &= 1023;
+	// 	// if ((emucvouthist & 3) == 0) {
+	// 	// 	for (int c = 0; c < 6; ++c)
+	// 	// 		emucvout[c][emucvouthist / 4] = 0;
+	// 	// }
+	// }
+	// else {
+	// 	SetOutputCVEmu(OUT_PITCHLO, dac_value);
+	// 	emupitchloopback = (dac_value - 52100.f) / -9334.83f;
+	// }
 #else
 	HAL_DAC_SetValue(&hdac1, pitch_hi ? DAC_CHANNEL_2 : DAC_CHANNEL_1, DAC_ALIGN_12B_L, dac_value);
 #endif

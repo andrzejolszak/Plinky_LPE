@@ -13,6 +13,8 @@ static inline float db2lin(float db) {
 #endif
 
 #ifdef EMU
+#define STEREOUNPACK(lr) int lr##l = (s16)lr, lr##r = (s16)(lr >> 16);
+void MONITORPEAK(float* mon, u32 stereoin);
 #define RVMASK 16383
 #define DLMASK 32767
 extern short reverb_ram_buf[RVMASK + 1];
@@ -20,6 +22,7 @@ extern short delay_ram_buf[DLMASK + 1];
 #else
 extern short* reverb_ram_buf;
 extern short* delay_ram_buf;
+#define MONITORPEAK(mon, stereoin)
 #endif
 
 // sampler stuff

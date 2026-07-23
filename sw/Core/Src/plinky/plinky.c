@@ -39,12 +39,6 @@ inline uint64_t emu_rdtsc(void) {
 	return (((now.QuadPart - pfstart.QuadPart) * 80000000) / pffreq.QuadPart);
 }
 #define RDTSC() emu_rdtsc()
-inline u32 millis(void) {
-	return RDTSC() / 80000;
-}
-inline u32 micros(void) {
-	return RDTSC() / 80;
-}
 inline void tc_init(void) {
 	QueryPerformanceFrequency(&pffreq);
 	QueryPerformanceCounter(&pfstart);
@@ -168,7 +162,20 @@ void emu_setadc(float araw, float braw, float pitchcv, float gatecv, float xcv, 
 }
 
 #ifdef EMU
-float m_compressor, m_dry, m_audioin, m_dry2wet, m_delaysend, m_delayreturn, m_reverbin, m_reverbout, m_fxout, m_output;
+inline u32 millis(void) {
+	return RDTSC() / 80000;
+}
+inline u32 micros(void) {
+	return RDTSC() / 80;
+}
+#else
+// time
+inline u32 millis(void) {
+	return HAL_GetTick();
+}
+inline u32 micros(void) {
+	return TIM5->CNT;
+}
 #endif
 
 static void define_hardware_version(void) {

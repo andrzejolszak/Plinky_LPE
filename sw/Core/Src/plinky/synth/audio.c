@@ -13,6 +13,15 @@
 #define DLMASK 32767
 short reverb_ram_buf[RVMASK + 1];
 short delay_ram_buf[DLMASK + 1];
+float m_compressor, m_audioin, m_output, m_dry, m_dry2wet, m_delaysend, m_delayreturn, m_reverbin, m_reverbout, m_fxout;
+void MONITORPEAK(float* mon, u32 stereoin) {
+	STEREOUNPACK(stereoin);
+	float peak = (1.f / 32768.f) * maxi(abs(stereoinl), abs(stereoinr));
+	if (peak > *mon)
+		*mon = peak;
+	else
+		*mon += (peak - *mon) * 0.0001f;
+}
 #else
 short* reverb_ram_buf = (short*)0x10000000; // use ram2 :)
 short* delay_ram_buf = (short*)0x20008000;  // use end of ram1 :)
@@ -464,12 +473,17 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		drylr0 = MIDSIDESCALE(drylr0, lvl_mid, lvl_side);
 		drylr1 = MIDSIDESCALE(drylr1, lvl_mid, lvl_side);
 
+		MONITORPEAK(&m_dry, drylr0);
+		MONITORPEAK(&m_dry, drylr1);
+
 		u32 ain0 = audio_in[i * 2 + 0];
 		u32 ain1 = audio_in[i * 2 + 1];
 
 		u32 audioinwet = STEREOSCALE(STEREOADDAVERAGE(ain0, ain1), ainwetlvl);
 		u32 synthwet = STEREOSCALE(STEREOADDAVERAGE(drylr0, drylr1), wetlvl);
 		u32 dry2wetlr = STEREOADDSAT(synthwet, audioinwet);
+
+		MONITORPEAK(&m_dry2wet, dry2wetlr);
 
 		// delay
 
@@ -481,6 +495,8 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		delaysend = (int)(lpf - dc);
 		//- compressor in feedback of delay
 		delaysend = MONOSIGMOID(delaysend);
+
+		MONITORPEAK(&m_delaysend, delaysend);
 
 		// adjust feedback up again
 		k_fb += (k_target_fb - k_fb) * 0.001f;
@@ -528,11 +544,16 @@ void audio_post(u32* audio_out, u32* audio_in) {
 
 		u32 newwetlr = STEREOPACK(delayreturnl, delayreturnr);
 
+		MONITORPEAK(&m_delayreturn, newwetlr);
+
 		// reverb
 
 		u32 reverbin = STEREOADDAVERAGE(newwetlr, dry2wetlr);
+		MONITORPEAK(&m_reverbin, reverbin);
 		u32 reverbout = Reverb2(reverbin, reverb_ram_buf);
+		MONITORPEAK(&m_reverbout, reverbout);
 		newwetlr = STEREOADDSAT(newwetlr, reverbout);
+		MONITORPEAK(&m_fxout, newwetlr);
 
 		// output upsample
 		u32 midwetlr = STEREOADDAVERAGE(newwetlr, wetlr);
@@ -540,11 +561,16 @@ void audio_post(u32* audio_out, u32* audio_in) {
 
 		u32 audioin0 = STEREOSIGMOID(STEREOSCALE(ain0, a_in_lvl)); // a_in_lvl already scaled by drylvl
 		u32 audioin1 = STEREOSIGMOID(STEREOSCALE(ain1, a_in_lvl));
+		MONITORPEAK(&m_audioin, audioin0);
+		MONITORPEAK(&m_audioin, audioin1);
 
 		// write to output
 
 		src[0] = STEREOADDSAT(STEREOADDSAT(STEREOSCALE(drylr0, drylvl), audioin0), midwetlr);
 		src[1] = STEREOADDSAT(STEREOADDSAT(STEREOSCALE(drylr1, drylvl), audioin1), newwetlr);
+
+		MONITORPEAK(&m_output, src[0]);
+		MONITORPEAK(&m_output, src[1]);
 
 		src += 2;
 	}

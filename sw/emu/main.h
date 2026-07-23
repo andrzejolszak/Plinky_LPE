@@ -8,20 +8,6 @@
 
 #define EMU
 
-#ifdef EMU
-#define STEREOUNPACK(lr) int lr##l = (s16)lr, lr##r = (s16)(lr >> 16);
-void MONITORPEAK(float* mon, u32 stereoin) {
-	STEREOUNPACK(stereoin);
-	float peak = (1.f / 32768.f) * maxi(abs(stereoinl), abs(stereoinr));
-	if (peak > *mon)
-		*mon = peak;
-	else
-		*mon += (peak - *mon) * 0.0001f;
-}
-#else
-#define MONITORPEAK(mon, stereoin)
-#endif
-
 #define BLOCK_SAMPLES 64
 extern "C" {
 
