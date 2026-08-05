@@ -152,14 +152,14 @@ namespace tests
 
             Assert::AreEqual(-48.1648f, gainhistoryrms [ghi], 0.001f);
 
-            Assert::AreEqual(0.385687f, emucvout [2][emucvouthist], 0.001f); // pressure
+            Assert::AreEqual(0.625498f, emucvout[2][emucvouthist], 0.001f); // pressure
 
-            Assert::AreEqual(0.312069f, m_dry, 0.001f);
+            Assert::AreEqual(0.162262f, m_dry, 0.001f);
             Assert::AreEqual(1.25f, m_compressor, 0.001f);
-            Assert::AreEqual(0.156212f, m_reverbin, 0.001f);
-            Assert::AreEqual(0.0487366f, m_reverbout, 0.001f);
-            Assert::AreEqual(0.0487366f, m_fxout, 0.001f);
-            Assert::AreEqual(0.335205f, m_output, 0.001f);
+	        Assert::AreEqual(0.0789013f, m_reverbin, 0.001f);
+	        Assert::AreEqual(0.023322f, m_reverbout, 0.001f);
+	        Assert::AreEqual(0.023322f, m_fxout, 0.001f);
+	        Assert::AreEqual(0.172508f, m_output, 0.001f);
 		}
 
         TEST_METHOD(CvInput)
@@ -177,7 +177,7 @@ namespace tests
 
             ShiftInitWeirdnessFix(audioOut, audioin);
 
-            pressButton(FN_SHIFT_B, audioOut, audioin);
+            pressFnButton(FN_SHIFT_B, audioOut, audioin);
 
             // First press weirdness...
             pressButton(P_DEGREE, audioOut, audioin);
@@ -191,7 +191,7 @@ namespace tests
             pressButton(P_X_SYM, audioOut, audioin);
 	        releaseButton(P_X_SYM, audioOut, audioin);
 
-            releaseButton(FN_SHIFT_B, audioOut, audioin);
+            releaseFnButton(FN_SHIFT_B, audioOut, audioin);
 
             const char *expectedLeds = 
                 "...x...x"
@@ -246,6 +246,14 @@ namespace tests
 
         void releaseButton(int param, u32* audioOut, u32* audioin, int baseOffset = 100, int waitMillis = 300) {
           settouch(param, 0, audioin, audioOut, baseOffset, waitMillis);
+        }
+
+        void pressFnButton(int param, u32* audioOut, u32* audioin, int baseOffset = 100, int waitMillis = 300) {
+	        settouch(param + 112, 2000, audioin, audioOut, baseOffset, waitMillis);
+        }
+
+        void releaseFnButton(int param, u32* audioOut, u32* audioin, int baseOffset = 100, int waitMillis = 300) {
+	        settouch(param + 112, 0, audioin, audioOut, baseOffset, waitMillis);
         }
 
         void settouch(int param, int pressure, u32* audioOut, const u32* audioin, int baseOffset = 100,

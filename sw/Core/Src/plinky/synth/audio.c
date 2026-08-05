@@ -274,9 +274,6 @@ void audio_pre(u32* audio_out, u32* audio_in) {
 	int audiorec_gain = (int)(ext_gain_smoother.y2) / 2;
 
 	newpeak = SATURATE16((newpeak * audiorec_gain) >> 14);
-#ifdef EMU
-	newpeak = 0; // disable loopback
-#endif
 	audio_in_peak = maxi((audio_in_peak * 220) >> 8, newpeak);
 	if (audio_in_peak > audio_in_hold || audio_in_hold_time++ > 500) {
 		audio_in_hold = audio_in_peak;
@@ -478,6 +475,12 @@ void audio_post(u32* audio_out, u32* audio_in) {
 
 		u32 ain0 = audio_in[i * 2 + 0];
 		u32 ain1 = audio_in[i * 2 + 1];
+
+#ifdef EMU
+		// Disable system sound routing to line-in
+		ain0 = 0;
+		ain1 = 0;
+#endif
 
 		u32 audioinwet = STEREOSCALE(STEREOADDAVERAGE(ain0, ain1), ainwetlvl);
 		u32 synthwet = STEREOSCALE(STEREOADDAVERAGE(drylr0, drylr1), wetlvl);
