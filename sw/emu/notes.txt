@@ -1,0 +1,61 @@
+STM32L476 internal 1 MiB
+┌──────────────────────────────┐ 0x08000000
+│ BOOTLOADER                   │
+│ ~64 KiB                      │
+├──────────────────────────────┤ 0x08010000
+│ FIRMWARE                     │
+│ 412 KiB                      │
+├──────────────────────────────┤ 0x08077000
+│ WAVETABLE                    │
+│ 36 KiB                       │
+├──────────────────────────────┤ 0x08080000
+│                              │
+│ PERSISTENT FLASH             │
+│ 255 × 2 KiB pages            │
+│                              │
+│ 32 presets                   │
+│ 24 × 4 pattern quarters      │
+│ 8 sample metadata records    │
+│ wear-levelled updates        │
+│                              │
+├──────────────────────────────┤ 0x080FF800
+│ CALIBRATION                  │
+│ 2 KiB                        │
+└──────────────────────────────┘ 0x08100000
+
+
+External SPI flash
+┌──────────────────────────────┐
+│ SAMPLE 0 — 4 MiB             │ 0x000000
+├──────────────────────────────┤
+│ SAMPLE 1 — 4 MiB             │ 0x400000
+├──────────────────────────────┤
+│ SAMPLE 2 — 4 MiB             │ 0x800000
+├──────────────────────────────┤
+│ SAMPLE 3 — 4 MiB             │ 0xC00000
+├──────────────────────────────┤
+│ SAMPLE 4 — 4 MiB             │ 0x1000000
+├──────────────────────────────┤
+│ SAMPLE 5 — 4 MiB             │ 0x1400000
+├──────────────────────────────┤
+│ SAMPLE 6 — 4 MiB             │ 0x1800000
+├──────────────────────────────┤
+│ SAMPLE 7 — 4 MiB             │ 0x1C00000
+└──────────────────────────────┘ 0x2000000
+
+.rodata	0x37AC0	223.7 KiB
+.text	0x2A1A4	168.4 KiB
+.wavetable	0x88EE	34.2 KiB
+
+Data:
+sigmoid	0x20000	128 KiB	.rodata
+rndtab	0x10000	64 KiB	.rodata
+wavetable	0x88EE	34.2 KiB	.wavetable
+font_data	0x1D40	7.3 KiB	.rodata
+
+Code:
+synth/synth.o	16,724 B	16.3 KiB
+synth/params.o	21,052 B	20.6 KiB
+hardware/midi.o	13,768 B	13.4 KiB
+hardware/memory.o	9,700 B	9.5 KiB
+synth/sampler.o	8,628 B	8.4 KiB

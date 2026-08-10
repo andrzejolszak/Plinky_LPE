@@ -6,7 +6,9 @@
 
 extern const u8 zero[2048];
 extern const float pitches[1025];
-extern const short sigmoid[65536];
+extern const short sigmoid[1025];
+
+// TODO: flash space optimization opportunity here, 32K should be very easy to fetch, probably more possible
 extern const u8 rndtab[65536];
 extern const u16 wavetable_octave_offset[17];
 

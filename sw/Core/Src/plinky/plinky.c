@@ -404,6 +404,25 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 }
 
 void plinky_frame(void) {
+
+#if defined(TIME_LOGGING) || defined(FPS_WINDOW)
+	// save frame fps to last debug item
+	static u32 last_us = 0;
+	u32 new_us = micros();
+	debug_time[TIME_LOG_ITEMS - 1] = 100000000 / (new_us - last_us); // 100x fps
+	last_us = new_us;
+
+#ifdef TIME_LOGGING
+	// serial log one saved  item per loop
+	static u8 log_index = 0;
+	if (log_index == TIME_LOG_ITEMS)
+		debug_log("Frame Start\n");
+	else
+		debug_log("%s %u\n", debug_label[log_index], debug_time[log_index]);
+	log_index = (log_index + 1) % (TIME_LOG_ITEMS + 1);
+#endif
+#endif
+
 	// set output volume
 	codec_update_volume();
 	// handle spi flash writes for the sampler
@@ -443,29 +462,8 @@ void plinky_frame(void) {
 }
 
 // this is the main loop, only code that is blocking in some way lives here
-#if defined(TIME_LOGGING) || defined(FPS_WINDOW)
 void plinky_loop(void) {
 	while (1) {
-		// save frame fps to last debug item
-		static u32 last_us = 0;
-		u32 new_us = micros();
-		debug_time[TIME_LOG_ITEMS - 1] = 100000000 / (new_us - last_us); // 100x fps
-		last_us = new_us;
-
-#ifdef TIME_LOGGING
-		// serial log one saved  item per loop
-		static u8 log_index = 0;
-		if (log_index == TIME_LOG_ITEMS)
-			debug_log("Frame Start\n");
-		else
-			debug_log("%s %u\n", debug_label[log_index], debug_time[log_index]);
-		log_index = (log_index + 1) % (TIME_LOG_ITEMS + 1);
-#endif
-#else
-
-void plinky_loop(void) {
-	while (1) {
-#endif
 		plinky_frame();
 	}
 }
