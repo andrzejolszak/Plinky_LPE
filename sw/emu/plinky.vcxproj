@@ -232,6 +232,7 @@
     <ClCompile Include="..\Core\Src\plinky\synth\sequencer.c" />
     <ClCompile Include="..\Core\Src\plinky\synth\synth.c" />
     <ClCompile Include="..\Core\Src\plinky\synth\time.c" />
+    <ClCompile Include="..\Core\Src\plinky\ui\extensions_menu.c" />
     <ClCompile Include="..\Core\Src\plinky\ui\led_viz.c" />
     <ClCompile Include="..\Core\Src\plinky\ui\oled_viz.c" />
     <ClCompile Include="..\Core\Src\plinky\ui\pad_actions.c" />
@@ -280,6 +281,7 @@
     <ClInclude Include="..\Core\Src\plinky\synth\sequencer.h" />
     <ClInclude Include="..\Core\Src\plinky\synth\synth.h" />
     <ClInclude Include="..\Core\Src\plinky\synth\time.h" />
+    <ClInclude Include="..\Core\Src\plinky\ui\extensions_menu.h" />
     <ClInclude Include="..\Core\Src\plinky\ui\led_viz.h" />
     <ClInclude Include="..\Core\Src\plinky\ui\oled_viz.h" />
     <ClInclude Include="..\Core\Src\plinky\ui\pad_actions.h" />

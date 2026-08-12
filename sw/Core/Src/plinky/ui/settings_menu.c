@@ -572,7 +572,7 @@ void settings_menu_leds(u8 pulse) {
 		for (u8 x = 0; x < 8; x++) {
 			// highlight selected item
 			if ((y << 3) + x == (cur_item & 63))
-				leds[x][y] = 255;
+					leds[x][y] = 255;
 			// light up section items
 			else if (item_exists(x, y))
 				leds[x][y] = led_add_gamma(active_sect ? 64 : 32);

@@ -37,6 +37,7 @@ typedef enum UIMode {
 	UI_LOAD,          // load screen: preset / pattern / sample
 	UI_SAMPLE_EDIT,   // sample edit screen
 	UI_SETTINGS_MENU, // edit system settings
+	UI_EXTENSIONS_MENU, // extensions settings
 } UIMode;
 
 typedef enum CalibMode {

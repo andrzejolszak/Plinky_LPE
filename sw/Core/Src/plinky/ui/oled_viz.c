@@ -4,6 +4,7 @@
 #include "hardware/midi.h"
 #include "pad_actions.h"
 #include "settings_menu.h"
+#include "extensions_menu.h"
 #include "synth/lfos.h"
 #include "synth/params.h"
 #include "synth/sampler.h"
@@ -224,6 +225,9 @@ static void draw_visuals(void) {
 		break;
 	case UI_SETTINGS_MENU:
 		draw_settings_menu();
+		break;
+	case UI_EXTENSIONS_MENU:
+		draw_extensions_menu();
 		break;
 	}
 

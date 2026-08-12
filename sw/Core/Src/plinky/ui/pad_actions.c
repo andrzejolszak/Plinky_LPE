@@ -4,6 +4,7 @@
 #include "hardware/touchstrips.h"
 #include "oled_viz.h"
 #include "settings_menu.h"
+#include "extensions_menu.h"
 #include "synth/params.h"
 #include "synth/sampler.h"
 #include "synth/sequencer.h"
@@ -105,7 +106,7 @@ static void press_function(FunctionPad new_function) {
 	case FN_CLEAR:
 		if (ui_mode == UI_LOAD)
 			cancel_main_press();
-		else if (ui_mode != UI_SETTINGS_MENU) {
+		else if (ui_mode != UI_SETTINGS_MENU && ui_mode != UI_EXTENSIONS_MENU) {
 			// pressing clear stops latched notes playing
 			clear_latch();
 			keep_ui_open = ui_mode == UI_LOAD;
@@ -192,7 +193,7 @@ static void release_function(void) {
 	case FN_CLEAR:
 		if (ui_mode == UI_LOAD)
 			cancel_main_press();
-		else if (ui_mode == UI_SETTINGS_MENU)
+		else if (ui_mode == UI_SETTINGS_MENU || ui_mode == UI_EXTENSIONS_MENU)
 			keep_ui_open = false;
 		else
 			seq_press_clear();
@@ -333,6 +334,13 @@ void handle_pad_actions(u8 strip_id) {
 				keep_ui_open = true;
 				break;
 			}
+
+			// extensions menu
+			if (ui_mode != UI_DEFAULT && pad_id == 39) {
+				open_extensions_menu();
+				keep_ui_open = true;
+				break;
+			}
 		// fall thru
 		case UI_DEFAULT:
 			// left strip or multi edit => touched edit strip
@@ -389,6 +397,10 @@ void handle_pad_actions(u8 strip_id) {
 		case UI_SETTINGS_MENU:
 			if (is_press_start)
 				press_settings_menu_pad(strip_id, pad_y);
+			break;
+		case UI_EXTENSIONS_MENU:
+			if (is_press_start)
+				press_extensions_menu_pad(strip_id, pad_y);
 			break;
 		default:
 			break;
@@ -463,7 +475,7 @@ bool oled_function_visuals(void) {
 			}
 			break;
 		case FN_CLEAR:
-			if (ui_mode == UI_LOAD || ui_mode == UI_SETTINGS_MENU)
+			if (ui_mode == UI_LOAD || ui_mode == UI_SETTINGS_MENU || ui_mode == UI_EXTENSIONS_MENU)
 				return false;
 
 			draw_str_ctr(6, F_20_BOLD, "clear");

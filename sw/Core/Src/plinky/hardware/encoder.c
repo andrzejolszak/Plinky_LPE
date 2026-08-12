@@ -3,6 +3,7 @@
 #include "synth/params.h"
 #include "synth/sampler.h"
 #include "ui/settings_menu.h"
+#include "ui/extensions_menu.h"
 
 volatile bool encoder_pressed = false;
 volatile s8 encoder_value = 0;
@@ -98,6 +99,15 @@ void encoder_tick(void) {
 			encoder_press_start = millis();
 		if (enc_diff)
 			edit_settings_from_encoder(enc_diff);
+		break;
+
+	case UI_EXTENSIONS_MENU:
+		// reset encoder press when a extensions menu action triggers
+		extensions_encoder_press(encoder_pressed);
+
+		if (enc_diff)
+			edit_extensions_from_encoder(enc_diff);
+
 		break;
 	default:
 		break;

@@ -20,6 +20,7 @@
 #include "ui/oled_viz.h"
 #include "ui/pad_actions.h"
 #include "ui/settings_menu.h"
+#include "ui/extensions_menu.h"
 
 #ifndef EMU
 #include "usb/usb.h"

@@ -4,6 +4,7 @@
 #include "hardware/memory.h"
 #include "pad_actions.h"
 #include "settings_menu.h"
+#include "extensions_menu.h"
 #include "synth/params.h"
 #include "synth/sampler.h"
 #include "synth/sequencer.h"
@@ -77,6 +78,9 @@ static void draw_main_leds(void) {
 		return;
 	case UI_SETTINGS_MENU:
 		settings_menu_leds(pulse_half);
+		return;
+	case UI_EXTENSIONS_MENU:
+		extensions_menu_leds(pulse_half);
 		return;
 	default:
 		break;

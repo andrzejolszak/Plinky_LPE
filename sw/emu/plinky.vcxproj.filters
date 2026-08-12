@@ -132,6 +132,9 @@
     <ClCompile Include="..\Core\Src\plinky\hardware\midi.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\Core\Src\plinky\ui\extensions_menu.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui_impl_glfw.h">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="..\Core\Src\plinky\hardware\midi.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Src\plinky\ui\extensions_menu.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
