@@ -135,29 +135,27 @@ static void draw_startup_visuals(void) {
 	frame += 4;
 }
 
-#ifdef FPS_WINDOW
 static void draw_fps_window(void) {
-	Font fps_font = F_12;
-	char fps_buf[5];
-	u16 fps = debug_time[TIME_LOG_ITEMS - 1] / 10;
-	sprintf(fps_buf, "%d.%d", (fps / 10) % 100, fps % 10);
-	u8 fps_width = str_width(fps_font, fps_buf);
-	u8 fps_height = font_height(fps_font);
-	fill_rectangle(0, 0, fps_width + 3, fps_height + 2);
-	inverted_rectangle(1, 1, fps_width + 2, fps_height + 1);
-	gfx_text_color = 1;
-	draw_str(2, 2, fps_font, fps_buf);
+	if (debug_display != -1) {
+		static u16 val = 0;
+		static u8 frame = 99;
+		frame++;
+		if (frame == 40) {
+			frame = 0;
+			val = debug_time[debug_display];
+		}
 
-	fps = debug_time[TIME_LOG_ITEMS - 2] / 100;
-	sprintf(fps_buf, "%d.%d", (fps / 10) % 100, fps % 10);
-	fps_width = str_width(fps_font, fps_buf);
-	fps_height = font_height(fps_font);
-	fill_rectangle(0, fps_height + 2, fps_width + 3, 2 * (fps_height + 2));
-	inverted_rectangle(1, 3 + fps_height, fps_width + 2, fps_height + 2 + fps_height + 1);
-	gfx_text_color = 1;
-	draw_str(2, 2 + fps_height, fps_font, fps_buf);
+		Font fps_font = F_8;
+		char fps_buf[10];
+		sprintf(fps_buf, "%5dus", val);
+		u8 fps_width = str_width(fps_font, fps_buf);
+		u8 fps_height = font_height(fps_font);
+		fill_rectangle(0, 0, fps_width + 3, fps_height + 2);
+		inverted_rectangle(1, 1, fps_width + 2, fps_height + 1);
+		gfx_text_color = 1;
+		draw_str(2, 2, fps_font, fps_buf);
+	}
 }
-#endif
 
 static void draw_visuals(void) {
 	gfx_text_color = 1;
@@ -231,9 +229,7 @@ static void draw_visuals(void) {
 		break;
 	}
 
-#ifdef FPS_WINDOW
 	draw_fps_window();
-#endif
 }
 
 void draw_oled_visuals(void) {

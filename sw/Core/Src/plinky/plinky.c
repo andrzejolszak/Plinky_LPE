@@ -92,8 +92,8 @@ int __builtin_ctzll(unsigned long long x) {
 #endif
 
 u32 debug_time[TIME_LOG_ITEMS];
-const char* debug_label[TIME_LOG_ITEMS] = {"ts",     "au_pre", "pr_ram", "seq",    "s_tch", "prm_t",
-                                           "sp_ram", "vcs",    "spi",    "au_pst", "frame", "fps"};
+const char* debug_label[TIME_LOG_ITEMS] = {"ts",     "au_pre", "pr_ram", "seq",    "s_tch",  "prm_t",
+                                           "sp_ram", "vcs",    "spi",    "auFram",  "oled", "uiFram"};
 
 UIMode ui_mode = UI_DEFAULT;
 
@@ -300,33 +300,21 @@ void plinky_init(void) {
 #endif
 }
 
-static void log_time(void) {
-	static u8 index = 0;
-	static u32 frame_start = 0;
-	static u32 last_us = 0;
+u32 log_time_diff(u32 prevMicros, u8 index) {
+	// Max index is TIME_LOG_ITEMS
 	u32 new_us = micros();
-	// frame start
-	if (index == 0)
-		frame_start = new_us;
-	// log section
-	else
-		debug_time[index - 1] = new_us - last_us;
-	// last section (logs section and full frame time)
-	if (index == TIME_LOG_ITEMS - 2)
-		debug_time[index] = new_us - frame_start;
-	last_us = new_us;
-	// leave last index open for the slow frame fps
-	index = (index + 1) % (TIME_LOG_ITEMS - 1);
+	debug_time[index] = new_us - prevMicros;
+	return new_us;
 }
 
 // this runs with precise audio timing
 void plinky_codec_tick(u32* audio_out, u32* audio_in) {
-	log_time();
+	u32 frame_start = micros();
 
 	// read physical touches
 	u8 read_phase = read_touchstrips();
 
-	log_time();
+	u32 stepTime = log_time_diff(frame_start, 0);
 
 	// once per touchstrip read cycle:
 	if (!read_phase) {
@@ -340,7 +328,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// pre-process audio
 	audio_pre(audio_out, audio_in);
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 1);
 
 	// don't do anything else while calibrating
 	if (calib_mode)
@@ -356,7 +344,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// make sure preset ram is up to date
 	update_preset_ram();
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 2);
 
 	// midi
 	midi_tick();
@@ -370,50 +358,52 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// sequencer
 	seq_tick();
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 3);
 
 	// combine physical, latch, sequencer, arp touches
 	generate_string_touches();
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 4);
 
 	// evaluate parameters and modulations
 	params_tick();
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 5);
 
 	// make sure sample and pattern ram is up to date
 	update_sample_ram();
 	update_pattern_ram();
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 6);
 
 	// generate the voices, based on touches and parameters
 	handle_synth_voices(audio_out);
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 7);
 
 	// restart spi loop if necessary
 	spi_tick();
 
-	log_time();
+	stepTime = log_time_diff(stepTime, 8);
 
 	// apply audio effects and send result to output buffer
 	audio_post(audio_out, audio_in);
 
-	log_time();
+	log_time_diff(frame_start, 9);
 }
 
 void plinky_frame(void) {
+	u32 frame_start = micros();
 
-#if defined(TIME_LOGGING) || defined(FPS_WINDOW)
-	// save frame fps to last debug item
-	static u32 last_us = 0;
+#ifdef TIME_LOGGING
+	if (log_index == TIME_LOG_ITEMS - 1)
+		// save frame fps to last debug item
+		static u32 last_us = 0;
+
 	u32 new_us = micros();
 	debug_time[TIME_LOG_ITEMS - 1] = 100000000 / (new_us - last_us); // 100x fps
 	last_us = new_us;
 
-#ifdef TIME_LOGGING
 	// serial log one saved  item per loop
 	static u8 log_index = 0;
 	if (log_index == TIME_LOG_ITEMS)
@@ -421,7 +411,6 @@ void plinky_frame(void) {
 	else
 		debug_log("%s %u\n", debug_label[log_index], debug_time[log_index]);
 	log_index = (log_index + 1) % (TIME_LOG_ITEMS + 1);
-#endif
 #endif
 
 	// set output volume
@@ -446,7 +435,11 @@ void plinky_frame(void) {
 	}
 	// visuals
 	take_param_snapshots();
+
+	u32 pre_oled = micros();
 	draw_oled_visuals();
+	log_time_diff(pre_oled, 10);
+
 	draw_led_visuals();
 	// read accelerometer values
 	accel_read();
@@ -460,6 +453,8 @@ void plinky_frame(void) {
 
 	// execute actions triggered by setting menu
 	settings_menu_actions();
+
+	log_time_diff(frame_start, 11);
 }
 
 // this is the main loop, only code that is blocking in some way lives here

@@ -1,6 +1,7 @@
 #pragma once
 #include "utils.h"
 
+extern int debug_display;
 
 // Codec/audio flow
 void open_extensions_menu(void);

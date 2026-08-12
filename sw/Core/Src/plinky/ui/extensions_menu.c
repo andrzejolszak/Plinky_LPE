@@ -1,27 +1,23 @@
 #include "extensions_menu.h"
 #include "gfx/gfx.h"
-#include "hardware/adc_dac.h"
 #include "hardware/leds.h"
-#include "hardware/memory.h"
-#include "hardware/midi.h"
-#include "hardware/touchstrips.h"
-#include "synth/synth.h"
-#include "ui/oled_viz.h"
+
+int debug_display = -1;
 
 typedef enum Items {
-	ITEM_0_DEBUG,
+	ITEM_0_TIMING,
 	ITEM_1_TEST,
 	ITEMS_COUNT,
 } Items;
 
-static u8 item_values[ITEMS_COUNT] = { 0 };
+static s8 item_values[ITEMS_COUNT] = { -1, 0 };
 static s8 cur_item = 0;
-static u8 cur_value = 0;
+static s8 cur_value = 0;
 static bool value_selected = false;
 
 static s8 get_item_idx(u8 x, u8 y) {
 	if (x == 1 && y == 3)
-		return ITEM_0_DEBUG;
+		return ITEM_0_TIMING;
 	if (x == 2 && y == 3)
 		return ITEM_1_TEST;
 
@@ -33,7 +29,7 @@ void extensions_menu_leds(u8 pulse) {
 	leds[1][3] = 64;
 	leds[2][3] = 64;
 	switch (cur_item) {
-	case ITEM_0_DEBUG:
+	case ITEM_0_TIMING:
 		leds[1][3] = 255;
 		break;
 	case ITEM_1_TEST:
@@ -49,19 +45,21 @@ void extensions_menu_leds(u8 pulse) {
 static void save_value(s8 enc_diff) {
 	s8 inc = enc_diff > 0 ? 1 : -1;
 	s8 maxVal = 1;
+	s8 minVal = 0;
 	switch (cur_item) {
-	case ITEM_0_DEBUG:
-		maxVal = 1;
-		break;
-	case ITEM_1_TEST:
-		maxVal = 2;
-		break;
-	default:
-		break;
+		case ITEM_0_TIMING:
+			minVal = -1;
+			maxVal = TIME_LOG_ITEMS - 1;
+			break;
+		case ITEM_1_TEST:
+			maxVal = 2;
+			break;
+		default:
+			break;
 	}
 
-	if (cur_value + inc < 0)
-		cur_value = 0;
+	if (cur_value + inc < minVal)
+		cur_value = minVal;
 	else if (cur_value + inc > maxVal) {
 		cur_value = maxVal;
 	}
@@ -71,12 +69,29 @@ static void save_value(s8 enc_diff) {
 
 	// Input/Audio thread
 	item_values[cur_item] = cur_value;
+
+	switch (cur_item) {
+		case ITEM_0_TIMING:
+			debug_display = cur_value;
+			break;
+		case ITEM_1_TEST:
+			break;
+		default:
+			break;
+	}
 }
 
-static const char* get_param_str(s8 item, u8 value, char* val_buf) {
+static const char* get_param_str(s8 item, s8 value, char* val_buf) {
 	switch (item) {
-	case ITEM_0_DEBUG:
-		return value ? "Yes" : "No";
+	case ITEM_0_TIMING:
+		if (value == -1) {
+			return "OFF";
+		}
+		else {
+			sprintf(val_buf, "%d %s", value, debug_label[value]);
+			return val_buf;
+		}
+
 	case ITEM_1_TEST:
 		switch (value) {
 			case 0:
@@ -158,8 +173,8 @@ void draw_extensions_menu(void) {
 	// name
 	char* item_name = "?";
 	switch (cur_item) {
-	case ITEM_0_DEBUG:
-		item_name = "Debug";
+	case ITEM_0_TIMING:
+		item_name = "Timing";
 		break;
 	case ITEM_1_TEST:
 		item_name = "Test";

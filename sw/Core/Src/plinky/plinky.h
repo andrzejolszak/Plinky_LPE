@@ -48,6 +48,8 @@ typedef enum CalibMode {
 
 #define TIME_LOG_ITEMS 12
 extern u32 debug_time[TIME_LOG_ITEMS];
+extern const char* debug_label[TIME_LOG_ITEMS];
+extern u32 log_time_diff(u32 prevMicros, u8 index);
 
 extern HardwareVersion hw_version;
 extern UIMode ui_mode;
