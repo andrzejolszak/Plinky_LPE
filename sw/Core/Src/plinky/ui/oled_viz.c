@@ -235,5 +235,10 @@ static void draw_visuals(void) {
 void draw_oled_visuals(void) {
 	oled_clear();
 	draw_visuals();
+
+	u32 pre_flip = micros();
 	oled_flip();
+
+	// PERF: 19500us
+	log_time_diff(pre_flip, 12);
 }

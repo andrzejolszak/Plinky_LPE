@@ -92,8 +92,24 @@ int __builtin_ctzll(unsigned long long x) {
 #endif
 
 u32 debug_time[TIME_LOG_ITEMS];
-const char* debug_label[TIME_LOG_ITEMS] = {"ts",     "au_pre", "pr_ram", "seq",    "s_tch",  "prm_t",
-                                           "sp_ram", "vcs",    "spi",    "auFram",  "oled", "uiFram"};
+const char* debug_label[TIME_LOG_ITEMS] = {
+	"ts",    
+	"au_pre",
+	"pr_ram",
+	"seq",
+	"s_tch",
+	"prm_t",
+	"sp_ram",
+	"vcs", 
+	"spi",  
+	"au_pos",
+	"auFram",
+	"uiFram",
+	"oledFl",
+	"runVoic",
+	"cv",
+	"lpg_noi",
+	"1voice"};
 
 UIMode ui_mode = UI_DEFAULT;
 
@@ -314,6 +330,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// read physical touches
 	u8 read_phase = read_touchstrips();
 
+	// PERF: 2us
 	u32 stepTime = log_time_diff(frame_start, 0);
 
 	// once per touchstrip read cycle:
@@ -327,7 +344,8 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 
 	// pre-process audio
 	audio_pre(audio_out, audio_in);
-
+	
+	// PERF: 61us
 	stepTime = log_time_diff(stepTime, 1);
 
 	// don't do anything else while calibrating
@@ -344,6 +362,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// make sure preset ram is up to date
 	update_preset_ram();
 
+	// PERF: 1us
 	stepTime = log_time_diff(stepTime, 2);
 
 	// midi
@@ -358,38 +377,48 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// sequencer
 	seq_tick();
 
+	// PERF: 100us
 	stepTime = log_time_diff(stepTime, 3);
 
 	// combine physical, latch, sequencer, arp touches
 	generate_string_touches();
 
+	// PERF: 40us
 	stepTime = log_time_diff(stepTime, 4);
 
 	// evaluate parameters and modulations
 	params_tick();
 
+	// PERF: 185us
 	stepTime = log_time_diff(stepTime, 5);
 
 	// make sure sample and pattern ram is up to date
 	update_sample_ram();
 	update_pattern_ram();
 
+	// PERF: 6us
 	stepTime = log_time_diff(stepTime, 6);
 
 	// generate the voices, based on touches and parameters
 	handle_synth_voices(audio_out);
 
+	// PERF: 1150us
 	stepTime = log_time_diff(stepTime, 7);
 
 	// restart spi loop if necessary
 	spi_tick();
 
+	// PERF: 1us
 	stepTime = log_time_diff(stepTime, 8);
 
 	// apply audio effects and send result to output buffer
 	audio_post(audio_out, audio_in);
 
-	log_time_diff(frame_start, 9);
+	// PERF: 750us
+	log_time_diff(stepTime, 9);
+
+	// PERF: 2300us
+	log_time_diff(frame_start, 10);
 }
 
 void plinky_frame(void) {
@@ -436,9 +465,8 @@ void plinky_frame(void) {
 	// visuals
 	take_param_snapshots();
 
-	u32 pre_oled = micros();
+	// 80% of the frame time goes here, most of it oled_flip
 	draw_oled_visuals();
-	log_time_diff(pre_oled, 10);
 
 	draw_led_visuals();
 	// read accelerometer values
@@ -454,6 +482,7 @@ void plinky_frame(void) {
 	// execute actions triggered by setting menu
 	settings_menu_actions();
 
+	// PERF: 22000us - 45000us
 	log_time_diff(frame_start, 11);
 }
 

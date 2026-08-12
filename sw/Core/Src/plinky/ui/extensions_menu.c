@@ -26,8 +26,8 @@ static s8 get_item_idx(u8 x, u8 y) {
 
 void extensions_menu_leds(u8 pulse) {
 	memset(leds, 0, sizeof(leds));
-	leds[1][3] = 64;
-	leds[2][3] = 64;
+	leds[1][3] = 32;
+	leds[2][3] = 32;
 	switch (cur_item) {
 	case ITEM_0_TIMING:
 		leds[1][3] = 255;

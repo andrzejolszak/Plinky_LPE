@@ -1196,6 +1196,8 @@ static u16 map_to_midi_tuning(u8 voice_id, Scale scale, SynthString* s_string) {
 }
 
 static void run_voice(u8 voice_id, u32* dst) {
+	u32 start_t = micros();
+	
 	// the synth string we read data from
 	SynthString* s_string = &play_strings[voice_id];
 	// the voice we write the resulting data to
@@ -1429,6 +1431,8 @@ static void run_voice(u8 voice_id, u32* dst) {
 	float resonance = 2.1f - (table_interp(pitches, resonancei) * (2.1f / pitches[1024]));
 	drive *= 2.f / (resonance + 2.f);
 
+	u32 pre_lpg = micros();
+
 	if (USING_SAMPLER)
 		apply_sample_lpg_noise(voice_id, voice, env_lvl, noise_diff, drive, dst);
 	else {
@@ -1436,6 +1440,14 @@ static void run_voice(u8 voice_id, u32* dst) {
 		// make the pitchbend value observe pitch modulation and portamento
 		if (sys_params.mpe_out && sys_params.mpe_out_fine_tuning)
 			s_string->pitchbend_pitch = voice->pitch - pitch_at_note_with_midi_tuning(s_string->note_number);
+	}
+
+	if (voice_id == 1) {
+		// PERF: 123us (*8)
+		log_time_diff(pre_lpg, 15);
+
+		// PERF: 145us (*8)
+		log_time_diff(start_t, 16);
 	}
 }
 
@@ -1453,9 +1465,14 @@ void handle_synth_voices(u32* dst) {
 	high_string_id = 255;
 	high_string_note = 255;
 
+	u32 start_t = micros();
+	
 	// run all voices
 	for (u8 voice_id = 0; voice_id < NUM_VOICES; ++voice_id)
 		run_voice(voice_id, dst);
+
+	// PERF: 1150us
+	start_t = log_time_diff(start_t, 13);
 
 	// send cv out
 	send_cv_trigger(cv_trig_out_high);
@@ -1470,6 +1487,9 @@ void handle_synth_voices(u32* dst) {
 		send_cv_pitch(false, voices[low_string_id].pitch);
 	if (high_string_id != 255)
 		send_cv_pitch(true, voices[high_string_id].pitch);
+
+	// PERF: 2us
+	log_time_diff(start_t, 14);
 
 	if (USING_SAMPLER) {
 		// decide on a priority for 8 voices
