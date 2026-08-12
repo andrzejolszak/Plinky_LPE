@@ -109,7 +109,8 @@ const char* debug_label[TIME_LOG_ITEMS] = {
 	"runVoic",
 	"cv",
 	"lpg_noi",
-	"1voice"};
+	"1voice",
+	"lpg_l"};
 
 UIMode ui_mode = UI_DEFAULT;
 

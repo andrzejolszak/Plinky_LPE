@@ -1048,6 +1048,8 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 		float y1 = voice->lpg_smoother[osc_id].y1;
 		float y2 = voice->lpg_smoother[osc_id].y2;
 
+		u32 pre_loop = micros();
+
 		// == WAVETABLE == //
 		if (osc_shape > 0) {
 			s32 shift1 = 16 - clz(maxi(phase1_diff, 1 << 22));
@@ -1133,6 +1135,12 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 				osc_dst += 2;
 			} // samples
 		}
+
+		if (osc_id == 0) {
+			// PERF: ?
+			log_time_diff(pre_loop, 17);
+		}
+
 		osc[0].phase = phase1;
 		osc[0].phase_diff = phase1_diff;
 		osc[0].prev_sample = prev_sample1;
