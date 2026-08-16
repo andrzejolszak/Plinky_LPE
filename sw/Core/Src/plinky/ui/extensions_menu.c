@@ -3,14 +3,15 @@
 #include "hardware/leds.h"
 
 int debug_display = -1;
+int ext_skip = -1;
 
 typedef enum Items {
 	ITEM_0_TIMING,
-	ITEM_1_TEST,
+	ITEM_1_SKIP,
 	ITEMS_COUNT,
 } Items;
 
-static s8 item_values[ITEMS_COUNT] = { -1, 0 };
+static s8 item_values[ITEMS_COUNT] = { -1, -1 };
 static s8 cur_item = 0;
 static s8 cur_value = 0;
 static bool value_selected = false;
@@ -19,7 +20,7 @@ static s8 get_item_idx(u8 x, u8 y) {
 	if (x == 1 && y == 3)
 		return ITEM_0_TIMING;
 	if (x == 2 && y == 3)
-		return ITEM_1_TEST;
+		return ITEM_1_SKIP;
 
 	return -1;
 }
@@ -32,7 +33,7 @@ void extensions_menu_leds(u8 pulse) {
 	case ITEM_0_TIMING:
 		leds[1][3] = 255;
 		break;
-	case ITEM_1_TEST:
+	case ITEM_1_SKIP:
 		leds[2][3] = 255;
 		break;
 	default:
@@ -51,8 +52,9 @@ static void save_value(s8 enc_diff) {
 			minVal = -1;
 			maxVal = TIME_LOG_ITEMS - 1;
 			break;
-		case ITEM_1_TEST:
-			maxVal = 2;
+		case ITEM_1_SKIP:
+		    minVal = -1;
+			maxVal = 10;
 			break;
 		default:
 			break;
@@ -74,7 +76,8 @@ static void save_value(s8 enc_diff) {
 		case ITEM_0_TIMING:
 			debug_display = cur_value;
 			break;
-		case ITEM_1_TEST:
+		case ITEM_1_SKIP:
+		    ext_skip = cur_value;
 			break;
 		default:
 			break;
@@ -92,16 +95,14 @@ static const char* get_param_str(s8 item, s8 value, char* val_buf) {
 			return val_buf;
 		}
 
-	case ITEM_1_TEST:
-		switch (value) {
-			case 0:
-				return "x0";
-			case 1:
-				return "x1";
-			case 2:
-				return "x2";
+	case ITEM_1_SKIP:
+		if (value == -1) {
+			return "OFF";
 		}
-		return val_buf;
+		else {
+			sprintf(val_buf, "idx_%d", value);
+			return val_buf;
+		}
 	default:
 		sprintf(val_buf, "%d", value);
 		return val_buf;
@@ -176,8 +177,8 @@ void draw_extensions_menu(void) {
 	case ITEM_0_TIMING:
 		item_name = "Timing";
 		break;
-	case ITEM_1_TEST:
-		item_name = "Test";
+	case ITEM_1_SKIP:
+		item_name = "Skip";
 		break;
 	default:
 		item_name = "?";

@@ -155,7 +155,10 @@ s16 MONOSIGMOID(int in) {
 __STATIC_FORCEINLINE
 u32 STEREOSIGMOID(u32 in) {
 	s16 l = MONOSIGMOID((s16)in);
-	s16 r = MONOSIGMOID((s16)(in >> 16));
+	s16 r = l;
+	if (likely(ext_skip != 3)) {
+		r = MONOSIGMOID((s16)(in >> 16));
+	}
 
 	return STEREOPACK(l, r);
 }

@@ -3,6 +3,8 @@
 
 extern int debug_display;
 
+extern int ext_skip;
+
 // Codec/audio flow
 void open_extensions_menu(void);
 void press_extensions_menu_pad(u8 x, u8 y);

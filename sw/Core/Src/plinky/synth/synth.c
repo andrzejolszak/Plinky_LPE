@@ -1060,17 +1060,22 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 			for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
 				u32 i1;
 				u32 i2;
-				s32 s0;
-				s32 s1;
+				s32 s0 = 0;
+				s32 s1 = 0;
 				phase1_diff += dd_phase1;
 				i1 = (phase1 += phase1_diff) >> shift1;
 				i2 = i1 >> 16;
-				s0 = table1[i2];
-				s1 = table1[i2 + 1];
+				if (likely(ext_skip != 2)) 
+				{
+					s0 = table1[i2];
+					s1 = table1[i2 + 1];
+				}
 				s32 out0 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
 				i2 += WAVETABLE_SIZE;
-				s0 = table1[i2];
-				s1 = table1[i2 + 1];
+				if (likely(ext_skip != 2)) {
+					s0 = table1[i2];
+					s1 = table1[i2 + 1];
+				}
 				s32 out1 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
 				u32 packed = STEREOPACK(out1 >> 16, out0 >> 16);
 				s32 out;
@@ -1081,10 +1086,13 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 				noise += noise_diff;
 
 				osc_lpg += osc_lpg_diff;
-				y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
-				y1 *= 0.999f;
-				y2 += (y1 - y2) * osc_lpg;
-				y2 *= 0.999f;
+				if (likely(ext_skip != 1)) 
+				{
+					y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
+					y1 *= 0.999f;
+					y2 += (y1 - y2) * osc_lpg;
+					y2 *= 0.999f;
+				}
 
 				s32 smooth_lpg = FLOAT2FIXED(y2, 0);
 				*osc_dst = SATURATE16(*osc_dst + smooth_lpg);
@@ -1137,7 +1145,7 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 		}
 
 		if (osc_id == 0) {
-			// PERF: ?
+			// PERF: 52us (*2)
 			log_time_diff(pre_loop, 17);
 		}
 

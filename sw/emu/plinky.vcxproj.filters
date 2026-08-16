@@ -285,7 +285,7 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\Core\Src\plinky\ui\extensions_menu.h">
-      <Filter>Header Files</Filter>
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

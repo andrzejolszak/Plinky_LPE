@@ -5,8 +5,8 @@ import re
 from collections import defaultdict
 import os
 
-MAP_FILE = 'sw/build/RELEASE/plinkyblack.map'
-OUTPUT_FILE = 'sw/Core/Src/plinky/scripts/mem_analysis.md'
+MAP_FILE = 'plinkyblack.map'
+OUTPUT_FILE = 'mem_analysis.md'
 
 def get_ram_section_sizes():
     """Get the sizes of all RAM sections from the map file."""
@@ -418,9 +418,9 @@ def print_report(ram_modules, rodata_modules):
     print(f"\n**Available RAM:** 32,768 bytes (32 KB)")
     overflow = total_ram_used - 32768
     if overflow > 0:
-        print(f"❌ **OVERFLOW:** {overflow:,} bytes ({overflow/1024:.2f} KB) - **BUILD WILL FAIL**")
+        print(f"x **OVERFLOW:** {overflow:,} bytes ({overflow/1024:.2f} KB) - **BUILD WILL FAIL**")
     else:
-        print(f"✓ **Free RAM:** {-overflow:,} bytes ({-overflow/1024:.2f} KB)")
+        print(f"v **Free RAM:** {-overflow:,} bytes ({-overflow/1024:.2f} KB)")
 
     # Print detailed breakdown - BSS first, then DATA
     print("\n---\n")
