@@ -133,32 +133,57 @@ s16 MONOSIGMOID(int in) {
 	// Remainder: x % 64
 	u32 f = x & 63;
 
-	if (i < 1023) {
-		s32 a = sigmoid[i];
-		s32 b = sigmoid[i + 1];
+	s32 a = sigmoid[i];
+	s32 b = sigmoid[i + 1];
 
-		// Linear interpolate to the neares integer
-		return (s16)(a + (((b - a) * f + 32) >> 6));
-	}
-
-	// Final interval is only len 63
-	if (i == 1023) {
-		s32 a = sigmoid[1023];
-		s32 b = sigmoid[1024];
-
-		return (s16)(a + (((b - a) * f + 31) / 63));
-	}
-
-	return sigmoid[1024];
+	// Linear interpolate to the neares integer
+	return (s16)(a + (((b - a) * f + 32) >> 6));
 }
 
 __STATIC_FORCEINLINE
-u32 STEREOSIGMOID(u32 in) {
-	s16 l = MONOSIGMOID((s16)in);
-	s16 r = l;
-	if (likely(ext_skip != 3)) {
-		r = MONOSIGMOID((s16)(in >> 16));
-	}
+u32 STEREOSIGMOID(int in) {
+	// -32768 .. +32767 -> 0 .. 65535
+	u32 x = (s16)in + 32768;
+
+	// Index: x / 64
+	u32 i = x >> 6;
+
+	// Remainder: x % 64
+	u32 f = x & 63;
+
+	s32 a = sigmoid[i];
+	s32 b = sigmoid[i + 1];
+
+	// Linear interpolate to the neares integer
+	s16 l = (s16)(a + (((b - a) * f + 32) >> 6));
+
+		// -32768 .. +32767 -> 0 .. 65535
+	x = (s16)(in >> 16) + 32768;
+
+	// Index: x / 64
+	i = x >> 6;
+
+	// Remainder: x % 64
+	f = x & 63;
+
+	a = sigmoid[i];
+	b = sigmoid[i + 1];
+
+	// Linear interpolate to the neares integer
+	s16 r = (s16)(a + (((b - a) * f + 32) >> 6));
 
 	return STEREOPACK(l, r);
 }
+
+// __STATIC_FORCEINLINE
+// s16 MONOSIGMOIDold(int in) {
+// 	in = SATURATE16(in);
+// 	return sigmoidold[(u16)in];
+// }
+// 
+// __STATIC_FORCEINLINE
+// u32 STEREOSIGMOIDold(u32 in) {
+// 	u16 l = sigmoidold[(u16)in];
+// 	u16 r = sigmoidold[in >> 16];
+// 	return STEREOPACK(l, r);
+// }

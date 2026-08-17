@@ -415,7 +415,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// apply audio effects and send result to output buffer
 	audio_post(audio_out, audio_in);
 
-	// PERF: 750us
+	// PERF: 690us
 	log_time_diff(stepTime, 9);
 
 	// PERF: 2300us

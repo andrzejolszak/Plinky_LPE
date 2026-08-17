@@ -65,25 +65,53 @@ namespace tests
             AssertLeds(expectedLeds);
 		}
 
-        // TEST_METHOD(Sigmoids) {
-	    //     for (int i = -32768; i < 32768; i++) 
-        //     {
-	    //         s16 mono = MONOSIGMOID(i);
-	    //         s16 monoold = MONOSIGMOIDold(i);
-		//         Assert::AreEqual((float)mono, (float)monoold, 1);
-        //     }
-        // 
-        //     for (int l = 10; l > -10; l--) {
-		//         for (int r = -32768; r < 32768; r++) {
-		//             u32 stereo = STEREOSIGMOID(STEREOPACK(l, r));
-		// 	        u32 stereoold = STEREOSIGMOIDold(STEREOPACK(l, r));
-		//             STEREOUNPACK(stereo);
-		//             STEREOUNPACK(stereoold);
-		//             Assert::AreEqual((float)stereol, (float)stereooldl, 1);
-		//             Assert::AreEqual((float)stereor, (float)stereooldr, 1);
-	    //         }
-        //     }
-        // }
+//        TEST_METHOD(Sigmoids) {
+// 	        for (int i = -32768; i < 32768; i++) 
+//            {
+// 	            s16 mono = MONOSIGMOID(i);
+// 	            s16 monoold = MONOSIGMOIDold(i);
+// 		        Assert::AreEqual((float)mono, (float)monoold, 1);
+//            }
+//        
+//        	for (int i = 0; i < 32768 * 2; i++) {
+// 		        s16 mono = MONOSIGMOID(i);
+// 		        s16 monoold = MONOSIGMOIDold(i);
+// 		        Assert::AreEqual((float)mono, (float)monoold, 1);
+// 	        }
+// 
+//            for (int l = 10; l > -10; l--) {
+// 		        for (int r = -32768; r < 32768; r++) {
+// 		            u32 stereo = STEREOSIGMOID(STEREOPACK(l, r));
+// 			        u32 stereoold = STEREOSIGMOIDold(STEREOPACK(l, r));
+// 		            STEREOUNPACK(stereo);
+// 		            STEREOUNPACK(stereoold);
+// 		            Assert::AreEqual((float)stereol, (float)stereooldl, 1);
+// 		            Assert::AreEqual((float)stereor, (float)stereooldr, 1);
+// 	            }
+//            }
+// 
+//            for (int l = 32768; l > 32758; l--) {
+// 		        for (int r = -32768; r < 32768; r++) {
+// 			        u32 stereo = STEREOSIGMOID(STEREOPACK(l, r));
+// 			        u32 stereoold = STEREOSIGMOIDold(STEREOPACK(l, r));
+// 			        STEREOUNPACK(stereo);
+// 			        STEREOUNPACK(stereoold);
+// 			        Assert::AreEqual((float)stereol, (float)stereooldl, 1);
+// 			        Assert::AreEqual((float)stereor, (float)stereooldr, 1);
+// 		        }
+// 	        }
+// 
+//            for (int l = -32768; l < -32758; l++) {
+// 		        for (int r = -32768; r < 32768; r++) {
+// 			        u32 stereo = STEREOSIGMOID(STEREOPACK(l, r));
+// 			        u32 stereoold = STEREOSIGMOIDold(STEREOPACK(l, r));
+// 			        STEREOUNPACK(stereo);
+// 			        STEREOUNPACK(stereoold);
+// 			        Assert::AreEqual((float)stereol, (float)stereooldl, 1);
+// 			        Assert::AreEqual((float)stereor, (float)stereooldr, 1);
+// 		        }
+// 	        }
+//        }
 
         TEST_METHOD(SimpleInputs)
 		{	
