@@ -1060,39 +1060,35 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 			for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
 				u32 i1;
 				u32 i2;
-				s32 s0 = 0;
-				s32 s1 = 0;
+				s32 s0;
+				s32 s1;
 				phase1_diff += dd_phase1;
 				i1 = (phase1 += phase1_diff) >> shift1;
+
 				i2 = i1 >> 16;
-				if (likely(ext_skip != 2)) 
-				{
-					s0 = table1[i2];
-					s1 = table1[i2 + 1];
-				}
+				s0 = table1[i2];
+				s1 = table1[i2 + 1];
 				s32 out0 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
+
 				i2 += WAVETABLE_SIZE;
-				if (likely(ext_skip != 2)) {
-					s0 = table1[i2];
-					s1 = table1[i2 + 1];
-				}
+				s0 = table1[i2];
+				s1 = table1[i2 + 1];
 				s32 out1 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
+
 				u32 packed = STEREOPACK(out1 >> 16, out0 >> 16);
 				s32 out;
 				SMUAD(out, packed, sub_wave);
+
 				//////////////////////////////////////////////////
 				// rest is same as polyblep
 				s16 n = ((s16*)rndtab)[rand_table_pos++];
 				noise += noise_diff;
 
 				osc_lpg += osc_lpg_diff;
-				if (likely(ext_skip != 1)) 
-				{
-					y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
-					y1 *= 0.999f;
-					y2 += (y1 - y2) * osc_lpg;
-					y2 *= 0.999f;
-				}
+				y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
+				y1 *= 0.999f;
+				y2 += (y1 - y2) * osc_lpg;
+				y2 *= 0.999f;
 
 				s32 smooth_lpg = FLOAT2FIXED(y2, 0);
 				*osc_dst = SATURATE16(*osc_dst + smooth_lpg);
@@ -1144,11 +1140,10 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 			} // samples
 		}
 
-		if (osc_id == 0) {
-			// PERF: 52us (*2)
-			log_time_diff(pre_loop, 17);
-		}
-
+		// if (osc_id == 0) {
+		// 	// PERF: 52us (*2)
+		// 	log_time_diff(pre_loop, 17);
+		// }
 		osc[0].phase = phase1;
 		osc[0].phase_diff = phase1_diff;
 		osc[0].prev_sample = prev_sample1;
@@ -1212,7 +1207,7 @@ static u16 map_to_midi_tuning(u8 voice_id, Scale scale, SynthString* s_string) {
 }
 
 static void run_voice(u8 voice_id, u32* dst) {
-	u32 start_t = micros();
+	// u32 start_t = micros();
 	
 	// the synth string we read data from
 	SynthString* s_string = &play_strings[voice_id];
@@ -1447,7 +1442,7 @@ static void run_voice(u8 voice_id, u32* dst) {
 	float resonance = 2.1f - (table_interp(pitches, resonancei) * (2.1f / pitches[1024]));
 	drive *= 2.f / (resonance + 2.f);
 
-	u32 pre_lpg = micros();
+	// u32 pre_lpg = micros();
 
 	if (USING_SAMPLER)
 		apply_sample_lpg_noise(voice_id, voice, env_lvl, noise_diff, drive, dst);
@@ -1458,13 +1453,13 @@ static void run_voice(u8 voice_id, u32* dst) {
 			s_string->pitchbend_pitch = voice->pitch - pitch_at_note_with_midi_tuning(s_string->note_number);
 	}
 
-	if (voice_id == 1) {
-		// PERF: 123us (*8)
-		log_time_diff(pre_lpg, 15);
-
-		// PERF: 145us (*8)
-		log_time_diff(start_t, 16);
-	}
+	// if (voice_id == 1) {
+	// 	// PERF: 123us (*8)
+	// 	log_time_diff(pre_lpg, 15);
+	// 
+	// 	// PERF: 145us (*8)
+	// 	log_time_diff(start_t, 16);
+	// }
 }
 
 void handle_synth_voices(u32* dst) {
@@ -1481,14 +1476,14 @@ void handle_synth_voices(u32* dst) {
 	high_string_id = 255;
 	high_string_note = 255;
 
-	u32 start_t = micros();
+	// u32 start_t = micros();
 	
 	// run all voices
 	for (u8 voice_id = 0; voice_id < NUM_VOICES; ++voice_id)
 		run_voice(voice_id, dst);
 
 	// PERF: 1150us
-	start_t = log_time_diff(start_t, 13);
+	// start_t = log_time_diff(start_t, 13);
 
 	// send cv out
 	send_cv_trigger(cv_trig_out_high);
@@ -1505,7 +1500,7 @@ void handle_synth_voices(u32* dst) {
 		send_cv_pitch(true, voices[high_string_id].pitch);
 
 	// PERF: 2us
-	log_time_diff(start_t, 14);
+	// log_time_diff(start_t, 14);
 
 	if (USING_SAMPLER) {
 		// decide on a priority for 8 voices

@@ -240,5 +240,5 @@ void draw_oled_visuals(void) {
 	oled_flip();
 
 	// PERF: 19500us
-	log_time_diff(pre_flip, 12);
+	// log_time_diff(pre_flip, 12);
 }

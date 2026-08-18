@@ -122,6 +122,10 @@ s16 LINEARINTERPRV(const s16* buf, int basei, int wobpos) { // read buf[basei-wo
 
 __STATIC_FORCEINLINE
 s16 MONOSIGMOID(int in) {
+	if (in == 0) {
+		return 0;
+	}
+
 	in = SATURATE16(in);
 
 	// -32768 .. +32767 -> 0 .. 65535
@@ -142,35 +146,43 @@ s16 MONOSIGMOID(int in) {
 
 __STATIC_FORCEINLINE
 u32 STEREOSIGMOID(int in) {
+	s16 l = 0; 
+
 	// -32768 .. +32767 -> 0 .. 65535
 	u32 x = (s16)in + 32768;
+	if (x != 32768)
+	{
+		// Index: x / 64
+		u32 i = x >> 6;
 
-	// Index: x / 64
-	u32 i = x >> 6;
+		// Remainder: x % 64
+		u32 f = x & 63;
 
-	// Remainder: x % 64
-	u32 f = x & 63;
+		s32 a = sigmoid[i];
+		s32 b = sigmoid[i + 1];
 
-	s32 a = sigmoid[i];
-	s32 b = sigmoid[i + 1];
+		// Linear interpolate to the neares integer
+		l = (s16)(a + (((b - a) * f + 32) >> 6));
+	}
 
-	// Linear interpolate to the neares integer
-	s16 l = (s16)(a + (((b - a) * f + 32) >> 6));
+	s16 r = 0; 
 
-		// -32768 .. +32767 -> 0 .. 65535
+	// -32768 .. +32767 -> 0 .. 65535
 	x = (s16)(in >> 16) + 32768;
+	if (x != 32768)
+	{
+		// Index: x / 64
+		u32 i = x >> 6;
 
-	// Index: x / 64
-	i = x >> 6;
+		// Remainder: x % 64
+		u32 f = x & 63;
 
-	// Remainder: x % 64
-	f = x & 63;
+		s32 a = sigmoid[i];
+		s32 b = sigmoid[i + 1];
 
-	a = sigmoid[i];
-	b = sigmoid[i + 1];
-
-	// Linear interpolate to the neares integer
-	s16 r = (s16)(a + (((b - a) * f + 32) >> 6));
+		// Linear interpolate to the neares integer
+		r = (s16)(a + (((b - a) * f + 32) >> 6));
+	}
 
 	return STEREOPACK(l, r);
 }

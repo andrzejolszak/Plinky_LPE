@@ -332,7 +332,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	u8 read_phase = read_touchstrips();
 
 	// PERF: 2us
-	u32 stepTime = log_time_diff(frame_start, 0);
+	// u32 stepTime = log_time_diff(frame_start, 0);
 
 	// once per touchstrip read cycle:
 	if (!read_phase) {
@@ -347,7 +347,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	audio_pre(audio_out, audio_in);
 	
 	// PERF: 61us
-	stepTime = log_time_diff(stepTime, 1);
+	// stepTime = log_time_diff(stepTime, 1);
 
 	// don't do anything else while calibrating
 	if (calib_mode)
@@ -364,7 +364,7 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	update_preset_ram();
 
 	// PERF: 1us
-	stepTime = log_time_diff(stepTime, 2);
+	// stepTime = log_time_diff(stepTime, 2);
 
 	// midi
 	midi_tick();
@@ -379,46 +379,46 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	seq_tick();
 
 	// PERF: 100us
-	stepTime = log_time_diff(stepTime, 3);
+	// stepTime = log_time_diff(stepTime, 3);
 
 	// combine physical, latch, sequencer, arp touches
 	generate_string_touches();
 
 	// PERF: 40us
-	stepTime = log_time_diff(stepTime, 4);
+	// stepTime = log_time_diff(stepTime, 4);
 
 	// evaluate parameters and modulations
 	params_tick();
 
 	// PERF: 185us
-	stepTime = log_time_diff(stepTime, 5);
+	// stepTime = log_time_diff(stepTime, 5);
 
 	// make sure sample and pattern ram is up to date
 	update_sample_ram();
 	update_pattern_ram();
 
 	// PERF: 6us
-	stepTime = log_time_diff(stepTime, 6);
+	// stepTime = log_time_diff(stepTime, 6);
 
 	// generate the voices, based on touches and parameters
 	handle_synth_voices(audio_out);
 
 	// PERF: 1150us
-	stepTime = log_time_diff(stepTime, 7);
+	// stepTime = log_time_diff(stepTime, 7);
 
 	// restart spi loop if necessary
 	spi_tick();
 
 	// PERF: 1us
-	stepTime = log_time_diff(stepTime, 8);
+	// stepTime = log_time_diff(stepTime, 8);
 
 	// apply audio effects and send result to output buffer
 	audio_post(audio_out, audio_in);
 
 	// PERF: 690us
-	log_time_diff(stepTime, 9);
+	// log_time_diff(stepTime, 9);
 
-	// PERF: 2300us
+	// PERF: 2300us (2250us osc, 2500us wavetab)
 	log_time_diff(frame_start, 10);
 }
 
