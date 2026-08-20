@@ -1063,7 +1063,7 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 				osc_lpg += osc_lpg_diff;
 				noise += noise_diff;
 
-				if (osc_lpg > 0.00001)
+				if (osc_lpg != 0)
 				{
 					u32 i1;
 					u32 i2;
@@ -1097,7 +1097,6 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 				}
 				else
 				{
-					osc_lpg = 0;
 					y1 *= 0.999f;
 					y2 *= 0.999f;
 				}
@@ -1121,7 +1120,7 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 				osc_lpg += osc_lpg_diff;
 				noise += noise_diff;
 
-				if (osc_lpg > 0.00001)
+				if (osc_lpg != 0)
 				{
 					u32 newsample1 = phase1;
 					if (unlikely(phase1 < (u32)phase1_diff)) {
@@ -1154,7 +1153,6 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 				}
 				else
 				{
-					osc_lpg = 0;
 					prev_sample1 = 0;
 					prev_sample2 = 0;
 					y1 *= 0.999f;
@@ -1187,8 +1185,8 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 		voice->lpg_smoother[osc_id].y2 = y2;
 	} // osc loop
 
-	voice->env1_lvl = goal_lpg > 0.00001 ? goal_lpg : 0;
-	voice->noise_lvl = noise > 0.00001 ? noise : 0;
+	voice->env1_lvl = goal_lpg > 0.000001 ? goal_lpg : 0;
+	voice->noise_lvl = noise > 0.000001 ? noise : 0;
 }
 
 static u16 map_to_midi_tuning(u8 voice_id, Scale scale, SynthString* s_string) {
