@@ -18,7 +18,7 @@
 static void gfx_dither_logo(u8 frame) {
 	const static u8 dither[16] = {0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5};
 	const u8* l = get_logo() - 1;
-	u8* v = oled_buffer() - 1;
+	u8* v = oled + 1 - 1;
 	u8 k = frame / 2;
 	for (u16 i = 0; i < 32 * 128 / 8; ++i) {
 		u8 mask = 0;
@@ -103,7 +103,7 @@ void put_scope_pixel(u8 x, u8 y) {
 }
 
 static void draw_scope(void) {
-	u8* oled_buf = oled_buffer();
+	u8* oled_buf = oled + 1;
 	for (u8 x = 0; x < OLED_WIDTH; ++x) {
 		u32 m = scope[x];
 		oled_buf[0] = m;

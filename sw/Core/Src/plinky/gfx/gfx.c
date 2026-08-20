@@ -22,7 +22,7 @@ void put_pixel(int x, int y, int c) {
 		return;
 	if (y >= OLED_HEIGHT)
 		return;
-	u8* dst = oled_buffer() + x + ((y >> 3) << 7);
+	u8* dst = oled + 1 + x + ((y >> 3) << 7);
 	u8 b = 1 << (y & 7);
 	if (c)
 		*dst |= b;
@@ -39,7 +39,7 @@ void vline(int x1, int y1, int y2, int c) {
 		return;
 	int y1b = y1 >> 3;
 	int n = (y2 >> 3) - y1b;
-	u8* dst = oled_buffer() + (x1) + (y1b << 7);
+	u8* dst = oled + 1 + (x1) + (y1b << 7);
 	u8 b1 = 0xff << (y1 & 7), b2 = (y2 & 7) ? ~(0xff << (y2 & 7)) : 0xff;
 	if (c) {
 		u8 mask = (c == 1) ? 255 : (x1 & 1) ? 0x55 : 0xaa;
@@ -78,7 +78,7 @@ void hline(int x1, int y1, int x2, int c) {
 	int n = (x2 - x1);
 	if (n <= 0)
 		return;
-	u8* dst = oled_buffer() + ((y1 >> 3) << 7) + (x1);
+	u8* dst = oled + 1 + ((y1 >> 3) << 7) + (x1);
 	u8 b = (1 << (y1 & 7));
 	if (c) {
 		for (; n--; dst++)
@@ -101,7 +101,7 @@ void fill_rectangle(int x1, int y1, int x2, int y2) {
 	if (y1 >= y2 || x1 >= x2)
 		return;
 	u32 mask = (2 << (y2 - y1 - 1)) - 1;
-	u8* dst = oled_buffer() + x1 + (y1 / 8) * 128;
+	u8* dst = oled + 1 + x1 + (y1 / 8) * 128;
 	mask <<= y1 & 7;
 	int w = x2 - x1;
 	while (mask) {
@@ -122,7 +122,7 @@ void half_rectangle(int x1, int y1, int x2, int y2) {
 	if (y1 >= y2 || x1 >= x2)
 		return;
 	u32 mask = (2 << (y2 - y1 - 1)) - 1;
-	u8* dst = oled_buffer() + x1 + (y1 / 8) * 128;
+	u8* dst = oled + 1 + x1 + (y1 / 8) * 128;
 	mask <<= y1 & 7;
 	int w = x2 - x1;
 	while (mask) {
@@ -144,7 +144,7 @@ void inverted_rectangle(int x1, int y1, int x2, int y2) {
 	if (y1 >= y2 || x1 >= x2)
 		return;
 	u32 mask = (2 << (y2 - y1 - 1)) - 1;
-	u8* dst = oled_buffer() + x1 + (y1 / 8) * 128;
+	u8* dst = oled + 1 + x1 + (y1 / 8) * 128;
 	mask <<= y1 & 7;
 	int w = x2 - x1;
 	while (mask) {
@@ -163,7 +163,7 @@ int draw_icon(int x, int y, unsigned char c, int text_color) {
 	if (x <= -16 || x >= 128 || y <= -16 || y >= 32 || c >= NUM_ICONS)
 		return 20;
 	const u16* data = icons[c];
-	u8* dst = oled_buffer() + x;
+	u8* dst = oled + 1 + x;
 	for (int xx = 0; xx < 15; ++xx, ++dst, ++x) {
 		if (x >= OLED_WIDTH)
 			break;
@@ -297,8 +297,8 @@ static int draw_char(int x, int y, Font f, char c, char text_color) {
 		--xsize;
 	} // skip blank at start?
 	int lastset = 0;
-	//	u8 *vram=oled_buffer();
-	u8* dst = oled_buffer() + x;
+	//	u8 *vram=oled+1;
+	u8* dst = oled + 1 + x;
 	for (int xx = 0; xx < xsize; ++xx, ++dst, ++x) {
 		if (x >= OLED_WIDTH)
 			break;
@@ -413,21 +413,4 @@ int drawstr_noright(int x, int y, Font f, const char* buf) {
 			return x;
 	}
 	return x;
-}
-
-// DEBUG
-
-void gfx_debug(u8 row, const char* fmt, ...) {
-	static u32 ref_time[2] = {0, 0};
-	row %= 2;
-	// auto-throttle
-	if (do_every(100, &ref_time[row])) {
-		va_list args;
-		va_start(args, fmt);
-		oled_open_debug_buffer(row);
-		gfx_text_color = 1;
-		vfdraw_str(0, row * 16, F_16_BOLD, fmt, args);
-		oled_close_debug_buffer();
-		va_end(args);
-	}
 }

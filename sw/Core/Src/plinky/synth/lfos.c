@@ -207,7 +207,7 @@ void lfos_tick(void) {
 }
 
 void draw_lfos(void) {
-	u8* vr = oled_buffer();
+	u8* vr = oled + 1;
 	vr += OLED_WIDTH - 16;
 	u8 draw_frame = (lfo_scope_frame + 1) & 15;
 	for (u8 x = 0; x < 16; ++x) {

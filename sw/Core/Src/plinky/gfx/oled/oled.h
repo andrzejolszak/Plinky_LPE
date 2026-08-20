@@ -1,11 +1,11 @@
 #pragma once
 #include "utils.h"
+#include "SSD130x.h"
 
-u8* oled_buffer(void);
+// first element of the buffer is always 0x40, hence refer to as oled + 1
+extern u8 oled[OLED_BUFFER_SIZE];
+
 void oled_init(void);
 void oled_clear(void);
 void oled_flip(void);
 void oled_flip_with_buffer(const u8* buffer);
-
-void oled_open_debug_buffer(u8 row);
-void oled_close_debug_buffer();
