@@ -202,8 +202,10 @@ void lfos_tick(void) {
 	}
 
 	// update each lfo
-	for (u8 lfo_id = 0; lfo_id < NUM_LFOS; lfo_id++)
-		update_lfo(lfo_id);
+	update_lfo(0);
+	update_lfo(1);
+	update_lfo(2);
+	update_lfo(3);
 }
 
 void draw_lfos(void) {

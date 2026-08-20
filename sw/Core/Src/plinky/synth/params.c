@@ -85,7 +85,7 @@ static s32 SATURATE17(s32 a) {
 }
 
 // we force the bitshift to the positive domain to avoid integer rounding differences
-#define VALUE_TO_INDEX(value, range) ((mini(abs(value), 65535) * (range) >> 16) * ((value) >= 0 ? 1 : -1))
+#define VALUE_TO_INDEX(value, range) ((mini(qabs32(value), 65535) * (range) >> 16) * ((value) >= 0 ? 1 : -1))
 
 #define RAW_TO_INDEX(raw, range) (VALUE_TO_INDEX((raw) << 6, range))
 
@@ -414,12 +414,9 @@ void revert_preset(Preset* preset) {
 	preset->version = OG_PRESET_VERSION;
 }
 
-static void precalc_lfo_offset(MultiParam mp_id) {
-	s32 offset = 0;
+static inline void precalc_lfo_offset(MultiParam mp_id) {
 	s16* param = &cur_preset.params[param_from_multi_param[mp_id]][SRC_LFO_A];
-	for (u8 lfo_id = 0; lfo_id < NUM_LFOS; lfo_id++)
-		offset += lfo_cur[lfo_id] * param[lfo_id];
-	multi_param_lfo_offset[mp_id] = offset;
+	multi_param_lfo_offset[mp_id] = lfo_cur[0] * param[0] + lfo_cur[1] * param[1] + lfo_cur[2] * param[2] + lfo_cur[3] * param[3];
 }
 
 void params_tick(void) {
@@ -549,8 +546,11 @@ s32 param_val(Param param_id) {
 	mod_val += max_pres_global * param[SRC_PRES];
 
 	// apply lfo modulation
-	for (u8 lfo_id = 0; lfo_id < NUM_LFOS; lfo_id++)
-		mod_val += lfo_cur[lfo_id] * param[SRC_LFO_A + lfo_id];
+	mod_val += lfo_cur[0] * param[SRC_LFO_A + 0];
+	mod_val += lfo_cur[1] * param[SRC_LFO_A + 1];
+	mod_val += lfo_cur[2] * param[SRC_LFO_A + 2];
+	mod_val += lfo_cur[3] * param[SRC_LFO_A + 3];
+
 
 	// apply sample & hold modulation
 	if (param[SRC_RND]) {

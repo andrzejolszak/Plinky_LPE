@@ -77,6 +77,14 @@ static inline bool do_every(u32 duration, u32* referenceTime) {
 }
 
 // utils
+static inline int32_t qabs32(int32_t x) {
+#ifdef EMU
+	return abs(x);
+#else
+	asm("qabs %0, %1" : "=r"(x) : "0"(x));
+	return x;
+#endif
+}
 static inline int mini(int a, int b) {
 	return (a < b) ? a : b;
 }
