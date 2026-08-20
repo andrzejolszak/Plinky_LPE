@@ -1,6 +1,5 @@
 #pragma once
 #include "utils.h"
-#include "SSD130x.h"
 
 // first element of the buffer is always 0x40, hence refer to as oled + 1
 extern u8 oled[OLED_BUFFER_SIZE];

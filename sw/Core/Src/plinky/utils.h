@@ -8,6 +8,8 @@
 #endif
 #endif
 
+#define OLED_BUFFER_SIZE OLED_HEIGHT / 8 * OLED_WIDTH + 1 // first byte is always 0x40
+
 // core libraries
 #include <assert.h>
 #include <math.h>

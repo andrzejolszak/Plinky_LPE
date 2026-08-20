@@ -1,4 +1,5 @@
 #include "oled.h"
+#include "SSD130x.h"
 
 u8 oled[OLED_BUFFER_SIZE];
 

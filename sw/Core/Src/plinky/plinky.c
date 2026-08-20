@@ -366,20 +366,31 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// PERF: 1us
 	// stepTime = log_time_diff(stepTime, 2);
 
+	// u32 start = micros();
+
 	// midi
 	midi_tick();
+
+	// PERF: 70us
+	// start =	log_time_diff(start, 2);
 
 	// adc / dac
 	adc_dac_tick();
 
+	// PERF: 12us
+	// start = log_time_diff(start, 3);
+
 	// clock
 	clock_tick();
+
+	// PERF: 12us
+	// start = log_time_diff(start, 4);
 
 	// sequencer
 	seq_tick();
 
-	// PERF: 100us
-	// stepTime = log_time_diff(stepTime, 3);
+	// PERF: 5us
+	// start = log_time_diff(start, 5);
 
 	// combine physical, latch, sequencer, arp touches
 	generate_string_touches();

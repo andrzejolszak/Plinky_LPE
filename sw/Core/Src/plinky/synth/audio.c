@@ -238,6 +238,8 @@ s32 Reverb2(s32 input, s16* buf) {
 }
 
 void audio_pre(u32* audio_out, u32* audio_in) {
+	// u32 start = micros();
+
 	memset(audio_out, 0, 4 * SAMPLES_PER_TICK);
 
 	int newpeak = 0;
@@ -271,6 +273,9 @@ void audio_pre(u32* audio_out, u32* audio_in) {
 	else if (audioin_is_stereo > 0)
 		audioin_is_stereo--;
 
+	// PERF: 57us
+	// start = log_time_diff(start, 9);
+
 	int audiorec_gain = (int)(ext_gain_smoother.y2) / 2;
 
 	newpeak = SATURATE16((newpeak * audiorec_gain) >> 14);
@@ -290,6 +295,8 @@ void audio_pre(u32* audio_out, u32* audio_in) {
 	else
 		ext_gain_goal = a_in_lvl_full;
 	smooth_value(&ext_gain_smoother, ext_gain_goal, 65536.f);
+	// PERF: 2us
+	// start = log_time_diff(start, 12);
 }
 
 // takes a 16 bit value
@@ -370,9 +377,10 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		ic2r = v2r + v2r - ic2r;
 		r -= k * v1r + v2r;
 
+#ifdef EMU
 		power *= 0.999f;
 		power += l * l + r * r;
-
+#endif
 		s16 li = (s16)SATURATE16(l);
 		s16 ri = (s16)SATURATE16(r);
 		audio_out[i] = STEREOPACK(li, ri);
@@ -473,8 +481,10 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		MONITORPEAK(&m_dry, drylr0);
 		MONITORPEAK(&m_dry, drylr1);
 
+		// 0 on no input!
 		u32 ain0 = audio_in[i * 2 + 0];
 		u32 ain1 = audio_in[i * 2 + 1];
+		// debug_time[1] = maxi(ain0, ain1);
 
 #ifdef EMU
 		// Disable system sound routing to line-in
@@ -507,44 +517,47 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		delaypos &= DL_SIZE_MASK;
 		delay_ram_buf[delaypos] = delaysend;
 		delaypos++;
+		
+		// PERF: negligible 
+		//if (likely(ext_skip != 1))
+		{
+			// scope generation
 
-		// scope generation
+			u32 audioin_full = STEREOSCALE(STEREOADDAVERAGE(ain0, ain1), a_in_lvl_full);
+			u32 full_audio = STEREOADDSAT(STEREOADDAVERAGE(drylr0, drylr1), audioin_full);
+			s16 li = full_audio;
+			s16 ri = full_audio >> 16;
+			peak = maxf(peak, li + ri);
 
-		u32 audioin_full = STEREOSCALE(STEREOADDAVERAGE(ain0, ain1), a_in_lvl_full);
-		u32 full_audio = STEREOADDSAT(STEREOADDAVERAGE(drylr0, drylr1), audioin_full);
-		s16 li = full_audio;
-		s16 ri = full_audio >> 16;
-		peak = maxf(peak, li + ri);
-
-		static s16 prevli = 0;
-		static s16 prevprevli = 0;
-		static u16 bestedge = 0;
-		static s16 antiturningpointli = 0;
-		bool turningpoint = (prevli > prevprevli && prevli > li);
-		bool antiturningpoint = (prevli < prevprevli && prevli < li);
-		if (antiturningpoint)
-			antiturningpointli = prevli; // remember the last turning point at the bottom
-		if (turningpoint) {              // we are at a peak!
-			int edgesize = prevli - antiturningpointli;
-			if (scopex >= 256 || (scopex < 0 && edgesize > bestedge)) {
-				scopex = -256;
-				bestedge = edgesize;
+			static s16 prevli = 0;
+			static s16 prevprevli = 0;
+			static u16 bestedge = 0;
+			static s16 antiturningpointli = 0;
+			bool turningpoint = (prevli > prevprevli && prevli > li);
+			bool antiturningpoint = (prevli < prevprevli && prevli < li);
+			if (antiturningpoint)
+				antiturningpointli = prevli; // remember the last turning point at the bottom
+			if (turningpoint) {              // we are at a peak!
+				int edgesize = prevli - antiturningpointli;
+				if (scopex >= 256 || (scopex < 0 && edgesize > bestedge)) {
+					scopex = -256;
+					bestedge = edgesize;
+				}
 			}
-		}
-		prevprevli = prevli;
-		prevli = li;
+			prevprevli = prevli;
+			prevli = li;
 
-		if (scopex < 256 && scopex >= 0) {
-			int x = scopex / 2;
-			if (!(scopex & 1))
-				clear_scope_pixel(x);
-			put_scope_pixel(x, (li * scopescale >> 16) + 16);
-			put_scope_pixel(x, (ri * scopescale >> 16) + 16);
+			if (scopex < 256 && scopex >= 0) {
+				int x = scopex / 2;
+				if (!(scopex & 1))
+					clear_scope_pixel(x);
+				put_scope_pixel(x, (li * scopescale >> 16) + 16);
+				put_scope_pixel(x, (ri * scopescale >> 16) + 16);
+			}
+			scopex++;
+			if (scopex > 1024)
+				scopex = -256;
 		}
-		scopex++;
-		if (scopex > 1024)
-			scopex = -256;
-
 		u32 newwetlr = STEREOPACK(delayreturnl, delayreturnr);
 
 		MONITORPEAK(&m_delayreturn, newwetlr);

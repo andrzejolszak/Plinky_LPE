@@ -423,6 +423,8 @@ static void precalc_lfo_offset(MultiParam mp_id) {
 }
 
 void params_tick(void) {
+	// u32 start = micros();
+
 	// envelope 2
 	for (MultiParam mp_id = MP_ENV_LVL2; mp_id <= MP_RELEASE2; mp_id++)
 		precalc_lfo_offset(mp_id);
@@ -474,6 +476,10 @@ void params_tick(void) {
 		// collect max envelope
 		max_envelope2 = maxf(max_envelope2, env->level16);
 	}
+
+	// PERF: 46us
+	// start = log_time_diff(start, 6);
+
 	// scale range pressure to u16 range
 	max_pres_global <<= 5;
 	// generate global sample & hold random value on new touch
@@ -492,6 +498,9 @@ void params_tick(void) {
 		precalc_lfo_offset(mp_id);
 	}
 
+	// PERF: 75us
+	// start = log_time_diff(start, 7);
+
 	// precalc
 	arp_toggle = 0;
 	if (ui_mode != UI_SAMPLE_EDIT && seq_state() != SEQ_STEP_RECORDING) {
@@ -503,6 +512,9 @@ void params_tick(void) {
 	for (u8 i = 0; i < NUM_STRINGS; i++)
 		if (param_index_multi(MP_LATCH_TGL, i))
 			latch_toggle |= 1 << i;
+
+	// PERF: 67us
+	// start = log_time_diff(start, 8);
 }
 
 // == RETRIEVAL == //

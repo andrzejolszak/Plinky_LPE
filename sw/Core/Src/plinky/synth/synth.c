@@ -1048,7 +1048,7 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 		float y1 = voice->lpg_smoother[osc_id].y1;
 		float y2 = voice->lpg_smoother[osc_id].y2;
 
-		u32 pre_loop = micros();
+		// u32 pre_loop = micros();
 
 		// == WAVETABLE == //
 		if (osc_shape > 0) {
