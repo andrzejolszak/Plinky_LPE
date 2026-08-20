@@ -1058,37 +1058,49 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 			u8 table_id = osc_shape >> 12;
 			const s16* table1 = wavetable[table_id] + wavetable_octave_offset[shift1];
 			for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
-				u32 i1;
-				u32 i2;
-				s32 s0;
-				s32 s1;
 				phase1_diff += dd_phase1;
-				i1 = (phase1 += phase1_diff) >> shift1;
-
-				i2 = i1 >> 16;
-				s0 = table1[i2];
-				s1 = table1[i2 + 1];
-				s32 out0 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
-
-				i2 += WAVETABLE_SIZE;
-				s0 = table1[i2];
-				s1 = table1[i2 + 1];
-				s32 out1 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
-
-				u32 packed = STEREOPACK(out1 >> 16, out0 >> 16);
-				s32 out;
-				SMUAD(out, packed, sub_wave);
-
-				//////////////////////////////////////////////////
-				// rest is same as polyblep
-				s16 n = ((s16*)rndtab)[rand_table_pos++];
+				phase1 += phase1_diff;
+				osc_lpg += osc_lpg_diff;
 				noise += noise_diff;
 
-				osc_lpg += osc_lpg_diff;
-				y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
-				y1 *= 0.999f;
-				y2 += (y1 - y2) * osc_lpg;
-				y2 *= 0.999f;
+				if (osc_lpg > 0.00001)
+				{
+					u32 i1;
+					u32 i2;
+					s32 s0;
+					s32 s1;
+
+					i1 = phase1 >> shift1;
+
+					i2 = i1 >> 16;
+					s0 = table1[i2];
+					s1 = table1[i2 + 1];
+					s32 out0 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
+
+					i2 += WAVETABLE_SIZE;
+					s0 = table1[i2];
+					s1 = table1[i2 + 1];
+					s32 out1 = (s0 << 16) + ((s1 - s0) * (u16)(i1));
+
+					u32 packed = STEREOPACK(out1 >> 16, out0 >> 16);
+					s32 out;
+					SMUAD(out, packed, sub_wave);
+
+					//////////////////////////////////////////////////
+					// rest is same as polyblep
+					s16 n = ((s16*)rndtab)[rand_table_pos++];
+
+					y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
+					y1 *= 0.999f;
+					y2 += (y1 - y2) * osc_lpg;
+					y2 *= 0.999f;
+				}
+				else
+				{
+					osc_lpg = 0;
+					y1 *= 0.999f;
+					y2 *= 0.999f;
+				}
 
 				s32 smooth_lpg = FLOAT2FIXED(y2, 0);
 				*osc_dst = SATURATE16(*osc_dst + smooth_lpg);
@@ -1102,37 +1114,52 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 			for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
 				phase1_diff += dd_phase1;
 				phase1 += phase1_diff;
-				u32 newsample1 = phase1;
-				if (unlikely(phase1 < (u32)phase1_diff)) {
-					// edge! polyblep it.
-					u32 fractime = mini(65535, phase1 / (phase1_diff >> 16));
-					prev_sample1 -= (fractime * fractime) >> 1;
-					fractime = 65535 - fractime;
-					newsample1 += (fractime * fractime) >> 1;
-				}
-				s32 out = (s32)(prev_sample1 >> 4);
-				prev_sample1 = newsample1;
+				
 				phase2_diff += dd_phase2;
 				phase2 += phase2_diff;
-				u32 newsample2 = phase2;
-				if (unlikely(phase2 < (u32)phase2_diff)) {
-					// edge! polyblep it.
-					u32 fractime = mini(65535, phase2 / (phase2_diff >> 16));
-					prev_sample2 -= (fractime * fractime) >> 1;
-					fractime = 65535 - fractime;
-					newsample2 += (fractime * fractime) >> 1;
-				}
-				out += (s32)((prev_sample2 ^ flippity) >> 4) - (2 << (31 - 4));
-				prev_sample2 = newsample2;
-
-				s16 n = ((s16*)rndtab)[rand_table_pos++];
-				noise += noise_diff;
 
 				osc_lpg += osc_lpg_diff;
-				y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
-				y1 *= 0.999f;
-				y2 += (y1 - y2) * osc_lpg;
-				y2 *= 0.999f;
+				noise += noise_diff;
+
+				if (osc_lpg > 0.00001)
+				{
+					u32 newsample1 = phase1;
+					if (unlikely(phase1 < (u32)phase1_diff)) {
+						// edge! polyblep it.
+						u32 fractime = mini(65535, phase1 / (phase1_diff >> 16));
+						prev_sample1 -= (fractime * fractime) >> 1;
+						fractime = 65535 - fractime;
+						newsample1 += (fractime * fractime) >> 1;
+					}
+					s32 out = (s32)(prev_sample1 >> 4);
+					prev_sample1 = newsample1;
+
+					u32 newsample2 = phase2;
+					if (unlikely(phase2 < (u32)phase2_diff)) {
+						// edge! polyblep it.
+						u32 fractime = mini(65535, phase2 / (phase2_diff >> 16));
+						prev_sample2 -= (fractime * fractime) >> 1;
+						fractime = 65535 - fractime;
+						newsample2 += (fractime * fractime) >> 1;
+					}
+					out += (s32)((prev_sample2 ^ flippity) >> 4) - (2 << (31 - 4));
+					prev_sample2 = newsample2;
+
+					s16 n = ((s16*)rndtab)[rand_table_pos++];
+
+					y1 += (out * drive + n * noise - (y2 - y1) * resonance - y1) * osc_lpg; // drive
+					y1 *= 0.999f;
+					y2 += (y1 - y2) * osc_lpg;
+					y2 *= 0.999f;
+				}
+				else
+				{
+					osc_lpg = 0;
+					prev_sample1 = 0;
+					prev_sample2 = 0;
+					y1 *= 0.999f;
+					y2 *= 0.999f;
+				}
 
 				s32 smooth_lpg = FLOAT2FIXED(y2, 0);
 				*osc_dst = SATURATE16(*osc_dst + smooth_lpg);
@@ -1160,8 +1187,8 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 		voice->lpg_smoother[osc_id].y2 = y2;
 	} // osc loop
 
-	voice->env1_lvl = goal_lpg;
-	voice->noise_lvl = noise;
+	voice->env1_lvl = goal_lpg > 0.00001 ? goal_lpg : 0;
+	voice->noise_lvl = noise > 0.00001 ? noise : 0;
 }
 
 static u16 map_to_midi_tuning(u8 voice_id, Scale scale, SynthString* s_string) {

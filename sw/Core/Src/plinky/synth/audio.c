@@ -249,6 +249,11 @@ void audio_pre(u32* audio_out, u32* audio_in) {
 	// dc remover from audio in, and peak detector while we're there.
 	for (int i = 0; i < SAMPLES_PER_TICK; ++i) {
 		u32 inp = audio_in[i];
+		if (inp == 0)
+		{
+			continue;
+		}
+
 		STEREOUNPACK(inp);
 		dcl += (inpl - dcl) * 0.0001f;
 		dcr += (inpr - dcr) * 0.0001f;
@@ -481,10 +486,8 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		MONITORPEAK(&m_dry, drylr0);
 		MONITORPEAK(&m_dry, drylr1);
 
-		// 0 on no input!
 		u32 ain0 = audio_in[i * 2 + 0];
 		u32 ain1 = audio_in[i * 2 + 1];
-		// debug_time[1] = maxi(ain0, ain1);
 
 #ifdef EMU
 		// Disable system sound routing to line-in
