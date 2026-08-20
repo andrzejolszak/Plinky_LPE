@@ -1185,8 +1185,8 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 		voice->lpg_smoother[osc_id].y2 = y2;
 	} // osc loop
 
-	voice->env1_lvl = goal_lpg > 0.000001 ? goal_lpg : 0;
-	voice->noise_lvl = noise > 0.000001 ? noise : 0;
+	voice->env1_lvl = goal_lpg > 0.000001f ? goal_lpg : 0;
+	voice->noise_lvl = noise > 0.000001f ? noise : 0;
 }
 
 static u16 map_to_midi_tuning(u8 voice_id, Scale scale, SynthString* s_string) {
