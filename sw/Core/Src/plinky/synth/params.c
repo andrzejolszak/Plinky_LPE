@@ -85,7 +85,7 @@ static s32 SATURATE17(s32 a) {
 }
 
 // we force the bitshift to the positive domain to avoid integer rounding differences
-#define VALUE_TO_INDEX(value, range) ((mini(qabs32(value), 65535) * (range) >> 16) * ((value) >= 0 ? 1 : -1))
+#define VALUE_TO_INDEX(value, range) ((mini(abs(value), 65535) * (range) >> 16) * ((value) >= 0 ? 1 : -1))
 
 #define RAW_TO_INDEX(raw, range) (VALUE_TO_INDEX((raw) << 6, range))
 

@@ -465,7 +465,7 @@ void audio_post(u32* audio_out, u32* audio_in) {
 		STEREOUNPACK(drylr01);
 		static float peaktrack = 1.f;
 		float peaky = (float)((1.f / 4096.f / 65536.f)
-		                      * (maxi(qabs32(drylr01l), qabs32(drylr01r)) * synthlvl_));
+		                      * (maxi(abs(drylr01l), abs(drylr01r)) * synthlvl_));
 		if (peaky > peaktrack)
 			peaktrack += (peaky - peaktrack) * 0.01f;
 		else {
