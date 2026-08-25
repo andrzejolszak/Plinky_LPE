@@ -94,7 +94,7 @@ ADC_DAC_Calib* adc_dac_calib_ptr(void) {
 	return adc_dac_calib;
 }
 
-static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
 
 static ValueSmoother adc_smoother[ADC_CHANS];
 

@@ -23,7 +23,7 @@ float emupitchloopback;
 #define ADC_CHANS 8
 #define ADC_SAMPLES 8
 
-static u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
+extern u16 adc_buffer[ADC_CHANS * ADC_SAMPLES];
 
 ADC_DAC_Calib* adc_dac_calib_ptr(void);
 

@@ -89,7 +89,9 @@ static s32 SATURATE17(s32 a) {
 
 #define RAW_TO_INDEX(raw, range) (VALUE_TO_INDEX((raw) << 6, range))
 
-#define PARAM_RANGE(param_id) (param_info[range_type[param_id]] & RANGE_MASK)
+// Perf TODO
+#define PARAM_RANGE(param_id) (param_type[param_id] & RANGE_MASK)
+#define PARAM_SIGNED(param_id) (param_type[param_id] & SIGNED)
 
 static u8 param_is_index(Param param_id, ModSource mod_src, s16 raw) {
 	if (mod_src != SRC_BASE)
@@ -103,8 +105,6 @@ static u8 param_is_index(Param param_id, ModSource mod_src, s16 raw) {
 
 // "modulatable"
 #define PARAM_MODDABLE(param_id) (range_type[param_id] != R_UNUSED && param_id != P_VOLUME)
-
-#define PARAM_SIGNED(param_id) (param_info[range_type[param_id]] & SIGNED)
 
 static inline s16 cc_to_raw(u8 cc, Param param_id) {
 	bool bipolar = PARAM_SIGNED(param_id);
@@ -178,6 +178,7 @@ bool latch_active_on_string(u8 string_id) {
 	return latch_toggle & (1 << string_id);
 }
 
+// Perf TODO
 s16 value_to_index(Param param_id, s32 value) {
 	return VALUE_TO_INDEX(value, PARAM_RANGE(param_id));
 }
@@ -533,6 +534,7 @@ static s16 param_val_raw_multi(Param param_id, u8 string_id) {
 
 // param value range +/- 65536
 
+// Perf TODO
 s32 param_val(Param param_id) {
 	s16* param = cur_preset.params[param_id];
 
@@ -569,6 +571,7 @@ s32 param_val(Param param_id) {
 	return clampi(mod_val >> 10, PARAM_SIGNED(param_id) ? -65536 : 0, 65536);
 }
 
+// Perf TODO
 s32 param_val_multi(MultiParam mp_id, u8 string_id) {
 	Param param_id = param_from_multi_param[mp_id];
 	s16* param = cur_preset.params[param_id];
@@ -618,6 +621,7 @@ s32 param_val_multi(MultiParam mp_id, u8 string_id) {
 
 // index value is scaled to its appropriate range
 
+// Perf TODO
 s8 param_index(Param param_id) {
 	u8 range = PARAM_RANGE(param_id);
 	s8 index = VALUE_TO_INDEX(param_val(param_id), range);
@@ -627,6 +631,7 @@ s8 param_index(Param param_id) {
 	return index;
 }
 
+// Perf TODO
 s8 param_index_multi(MultiParam mp_id, u8 string_id) {
 	return VALUE_TO_INDEX(param_val_multi(mp_id, string_id), PARAM_RANGE(param_from_multi_param[mp_id]));
 }

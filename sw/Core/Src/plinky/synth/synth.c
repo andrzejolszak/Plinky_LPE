@@ -12,6 +12,10 @@
 #include "sequencer.h"
 #include "time.h"
 
+s16 grain_buf[GRAINBUF_BUDGET];
+s32 grain_pos[NUM_GRAINS];
+s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+
 typedef struct Osc {
 	u32 phase;
 	u32 prev_sample;
@@ -69,14 +73,14 @@ const static s16 ref_pitch_offset[16] = {-102, -82, -62, -41, -21, 0, 20, 40, 61
 static u32 tuning_offset;
 
 static Voice voices[NUM_VOICES];
-static SynthString synth_string[2][NUM_STRINGS];
+SynthString synth_string[2][NUM_STRINGS];
 static Touch touch_frames[NUM_STRINGS][NUM_TOUCH_FRAMES];
 static Touch touch_sorted[NUM_STRINGS][NUM_TOUCH_FRAMES];
 
 static u8 write_frame;
 static u8 play_frame;
 static SynthString* write_strings = synth_string[0];
-static SynthString* play_strings = synth_string[1];
+SynthString* play_strings = synth_string[1];
 
 static u8 phys_touch_mask = 0;
 static u8 before_arp_touch_mask = 0;
@@ -92,10 +96,6 @@ static u8 string_oct_valid = 0;
 static u8 string_scale_valid = 0;
 static u8 string_start_step_valid = 0;
 static u8 string_root_pitch_valid = 0;
-
-const SynthString* get_synth_string(u8 string_id) {
-	return &play_strings[string_id];
-}
 
 // === UTILS === //
 
@@ -1063,8 +1063,7 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 				osc_lpg += osc_lpg_diff;
 				noise += noise_diff;
 
-				if (osc_lpg != 0)
-				{
+				if (osc_lpg != 0) {
 					u32 i1;
 					u32 i2;
 					s32 s0;
@@ -1095,8 +1094,7 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 					y2 += (y1 - y2) * osc_lpg;
 					y2 *= 0.999f;
 				}
-				else
-				{
+				else {
 					y1 *= 0.999f;
 					y2 *= 0.999f;
 				}
@@ -1113,15 +1111,14 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 			for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
 				phase1_diff += dd_phase1;
 				phase1 += phase1_diff;
-				
+
 				phase2_diff += dd_phase2;
 				phase2 += phase2_diff;
 
 				osc_lpg += osc_lpg_diff;
 				noise += noise_diff;
 
-				if (osc_lpg != 0)
-				{
+				if (osc_lpg != 0) {
 					u32 newsample1 = phase1;
 					if (unlikely(phase1 < (u32)phase1_diff)) {
 						// edge! polyblep it.
@@ -1151,8 +1148,7 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 					y2 += (y1 - y2) * osc_lpg;
 					y2 *= 0.999f;
 				}
-				else
-				{
+				else {
 					prev_sample1 = 0;
 					prev_sample2 = 0;
 					y1 *= 0.999f;
@@ -1233,7 +1229,7 @@ static u16 map_to_midi_tuning(u8 voice_id, Scale scale, SynthString* s_string) {
 
 static void run_voice(u8 voice_id, u32* dst) {
 	// u32 start_t = micros();
-	
+
 	// the synth string we read data from
 	SynthString* s_string = &play_strings[voice_id];
 	// the voice we write the resulting data to
@@ -1481,7 +1477,7 @@ static void run_voice(u8 voice_id, u32* dst) {
 	// if (voice_id == 1) {
 	// 	// PERF: 123us (*8)
 	// 	log_time_diff(pre_lpg, 15);
-	// 
+	//
 	// 	// PERF: 145us (*8)
 	// 	log_time_diff(start_t, 16);
 	// }
@@ -1502,7 +1498,7 @@ void handle_synth_voices(u32* dst) {
 	high_string_note = 255;
 
 	// u32 start_t = micros();
-	
+
 	// run all voices
 	for (u8 voice_id = 0; voice_id < NUM_VOICES; ++voice_id)
 		run_voice(voice_id, dst);

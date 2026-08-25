@@ -5,14 +5,14 @@
 // on the virtual touches in the eight strings, applies the envelope and basic sound parameters
 // this module also sends out pitch/pressure/gate cv signals based on the generated oscillators
 
-const SynthString* get_synth_string(u8 string_id);
-
 #define AVG_GRAINBUF_SAMPLE_SIZE (64 + 4) // 2 extra for interpolation, 2 extra for SPI address at the start
 #define GRAINBUF_BUDGET (AVG_GRAINBUF_SAMPLE_SIZE * NUM_GRAINS)
 
-static s16 grain_buf[GRAINBUF_BUDGET];
-static s32 grain_pos[NUM_GRAINS];
-static s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+extern s16 grain_buf[GRAINBUF_BUDGET];
+extern s32 grain_pos[NUM_GRAINS];
+extern s16 grain_buf_end[NUM_GRAINS]; // for each of the 32 grain fetches, where does it end in the grain_buf?
+extern SynthString synth_string[2][NUM_STRINGS];
+extern SynthString* play_strings;
 
 // utils
 u16 quant_pitch_to_scale(u16 pitch, u8 string_id);
@@ -40,3 +40,6 @@ void draw_max_pres(void);
 void draw_voices(bool show_latch);
 void draw_sample_playback(SampleInfo* s);
 void get_root_and_blackout_leds(u8 string_id, u8 root_k[PADS_PER_STRIP]);
+static const inline SynthString* get_synth_string(u8 string_id) {
+	return &play_strings[string_id];
+}

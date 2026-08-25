@@ -121,6 +121,7 @@ static inline s32 map_s32(s32 value, s32 in_min, s32 in_max, s32 out_min, s32 ou
 }
 
 // debug
+// Perf TODO
 void debug_log(const char* format, ...);
 static inline void DebugLog(const char* fmt, ...) {
 }
@@ -151,15 +152,19 @@ extern u32 clz(u32 val);
 #define OCTS_TO_PITCH(oct) (3 * (oct) << 11)
 #define PARAM_VAL_TO_PITCH(value) ((3 * (value) + 16) >> 5) // scales +/- 65536 to +/- 1 octave
 #define MAP_7BIT_TO_14BIT(val7) (((val7) << 7) | (val7))
+
+// Perf TODO
 // map to the value closest to 0 that is fully inside of the requested index
 #define ABSC(val) (val > 0 ? val : -val)
 #define INDEX_TO_RAW(index, range) (((ABSC(index) << 10) + ((range) - 1)) / ((index) >= 0 ? (range) : -(range)))
 
+// Perf TODO
 #define PARAM_IS_MULTI_TIMBRAL(param_id)                                                                               \
 	(((param_id) >= P_SHAPE && (param_id) <= P_RELEASE2) || ((param_id) >= P_SCRUB && (param_id) <= P_SMP_STRETCH)     \
 	 || ((param_id) >= P_SCRUB_JIT && (param_id) <= P_PLAY_SPD_JIT) || (param_id) == P_ARP_TGL                         \
 	 || (param_id) == P_LATCH_TGL || (param_id) == P_GATE_LENGTH)
 
+// Perf TODO
 #define IS_GLOBAL_LAYOUT(param_id)                                                                                     \
 	(sys_params.layout_global                                                                                          \
 	 && ((param_id) == P_ROOT || (param_id) == P_OCT || (param_id) == P_SCALE || (param_id) == P_COLUMN))
