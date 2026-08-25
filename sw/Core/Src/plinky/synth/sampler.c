@@ -179,7 +179,6 @@ void write_flash_sample_blocks(void) {
 		setwaveform4(s, flashaddr / 2 / 1024, peak / 1024);
 		// write audio to flash
 		if (spi_write256(flashaddr + record_flashaddr_base) != 0) {
-			DebugLog("flash write fail\n");
 		}
 		// recalc sample length
 		s->samplelen = buf_read_pos - buf_start_pos;

@@ -120,12 +120,6 @@ static inline s32 map_s32(s32 value, s32 in_min, s32 in_max, s32 out_min, s32 ou
 	return out_min + ((s64)(value - in_min) * (out_max - out_min)) / (in_max - in_min);
 }
 
-// debug
-// Perf TODO
-void debug_log(const char* format, ...);
-static inline void DebugLog(const char* fmt, ...) {
-}
-
 // plinky utils
 #ifdef EMU
 extern u32 clz(u32 val);

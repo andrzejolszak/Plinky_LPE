@@ -315,9 +315,7 @@ static u8 wmcodec_write(u8 reg, u16 data) {
 			break;
 		HAL_Delay(10);
 	}
-	if (attempt == 100) {
-		DebugLog("error in wmcodec_write reg %d data %d\r\n", reg, data);
-	}
+
 	return 0;
 #endif
 
@@ -327,11 +325,9 @@ void init_codec(void) {
 
 #ifndef EMU
 	if (HAL_OK != HAL_SAI_Receive_DMA(&hsai_BlockB1, (u8*)rx_buf, sizeof(rx_buf) / 2)) {
-		DebugLog("HAL_SAI_Receive_DMA fail 1\r\n");
 		Error_Handler();
 	}
 	if (HAL_OK != HAL_SAI_Transmit_DMA(&hsai_BlockA1, (u8*)tx_buf, sizeof(tx_buf) / 2)) {
-		DebugLog("HAL_SAI_Transmit_DMA fail 1\r\n");
 		Error_Handler();
 	}
 #endif

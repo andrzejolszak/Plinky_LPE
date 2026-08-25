@@ -1582,22 +1582,6 @@ void draw_sysex_flag(void) {
 
 // == AUX == //
 
-// we debug log through the midi serial
-void debug_log(const char* format, ...) {
-#ifndef DEBUG_LOG
-	return;
-#endif
-
-	char buf[128];
-	va_list args;
-	va_start(args, format);
-	vsnprintf(buf, sizeof(buf), format, args);
-	va_end(args);
-	for (u16 i = 0; buf[i] != '\0'; i++)
-		midi_send_buffer[(midi_send_head++) & 15] = buf[i];
-	midi_send_buffer[(midi_send_head++) & 15] = '\n';
-}
-
 #ifndef EMU
 // from https://community.st.com/s/question/0D50X00009XkflR/haluartirqhandler-bug
 // what a trash fire

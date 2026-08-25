@@ -23,8 +23,6 @@ void midi_send_multi_param(MultiParam mp_id, u8 mask);
 // visuals
 void draw_sysex_flag(void);
 
-void debug_log(const char* format, ...);
-
 // reverse lookup table
 const static u8 midi_cc_table_rvs[NUM_PARAMS] = {
     [P_SHAPE] = 13,        [P_DISTORTION] = 4,    [P_PITCH] = 9,

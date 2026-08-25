@@ -397,7 +397,6 @@ void check_bootloader_flash(void) {
 	for (; count < 64; ++count)
 		if (rb[count] != 1)
 			break;
-	DebugLog("bootloader left %d ones for us magic is %08x\r\n", count, magic);
 	const u32* app_base = (const u32*)delay_ram_buf;
 
 	if (count != 64 / 4 || magic != 0xa738ea75) {
@@ -410,7 +409,6 @@ void check_bootloader_flash(void) {
 		checksum = checksum * 23 + ((u32*)delay_ram_buf)[i];
 	}
 	if (checksum != GOLDEN_CHECKSUM) {
-		DebugLog("bootloader checksum failed %08x != %08x\r\n", checksum, GOLDEN_CHECKSUM);
 		oled_clear();
 		draw_str(0, 0, F_8, "bad bootloader crc");
 		snprintf(buf, sizeof(buf), "%08x vs %08x", (unsigned int)checksum, (unsigned int)GOLDEN_CHECKSUM);
@@ -427,8 +425,6 @@ void check_bootloader_flash(void) {
 	oled_flip();
 
 	rb32[64]++; // clear the magic
-
-	DebugLog("bootloader app base is %08x %08x\r\n", (unsigned int)app_base[0], (unsigned int)app_base[1]);
 
 	/*
 	 * We refuse to program the first word of the app until the upload is marked
@@ -453,7 +449,6 @@ void check_bootloader_flash(void) {
 		HAL_Delay(10000);
 		return;
 	}
-	DebugLog("FLASHING BOOTLOADER! DO NOT RESET\r\n");
 	oled_clear();
 	draw_str(0, 0, F_12, "FLASHING\nBOOTLOADER");
 	char verbuf[5] = {};
@@ -469,14 +464,12 @@ void check_bootloader_flash(void) {
 	EraseInitStruct.NbPages = 65536 / FLASH_PAGE_SIZE;
 	u32 SECTORError = 0;
 	if (HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError) != HAL_OK) {
-		DebugLog("BOOTLOADER flash erase error %d\r\n", SECTORError);
 		oled_clear();
 		draw_str(0, 0, F_16_BOLD, "BOOTLOADER\nERASE ERROR");
 		oled_flip();
 		HAL_Delay(10000);
 		return;
 	}
-	DebugLog("BOOTLOADER flash erased ok!\r\n");
 
 	__HAL_FLASH_DATA_CACHE_DISABLE();
 	__HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
@@ -491,7 +484,6 @@ void check_bootloader_flash(void) {
 		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, (u32)(size_t)(d++), *s++);
 	}
 	HAL_FLASH_Lock();
-	DebugLog("BOOTLOADER has been flashed!\r\n");
 	oled_clear();
 	draw_str(0, 0, F_12, "BOOTLOADER\nFLASHED OK!");
 	draw_str(0, 24, F_8, verbuf);
@@ -517,7 +509,6 @@ void init_memory(void) {
 			continue; // skip old
 		u16 check = compute_hash(fp, 2040);
 		if (check != fp->footer.crc) {
-			DebugLog("flash page %d has a bad crc!\r\n", page);
 			if (page == dummy_page) {
 				// shit, the dummy page is dead! move to a different dummy
 				for (u8 i = 0; i < NUM_FLASH_ITEMS; ++i)

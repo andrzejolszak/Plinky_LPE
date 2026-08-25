@@ -140,9 +140,6 @@ int spi_readgrain_dma(int gi) {
 extern SPI_HandleTypeDef hspi2;
 
 #define LAST_GRAIN_SPI_STATE 32
-#define CHECK_RV(spi_rv, msg)                                                                                          \
-	if (spi_rv != 0)                                                                                                   \
-		DebugLog("SPI ERROR %d " msg "\r\n", spi_rv);
 
 #define SPI_PORT GPIOE
 #define SPI_CS0_PIN_ GPIO_PIN_1
@@ -185,7 +182,6 @@ static int spi_read_id(void) {
 	spi_assert_cs();
 	spi_delay();
 	int spi_rv = HAL_SPI_TransmitReceive(&hspi2, (u8*)spi_tx_buf, (u8*)spi_rx_buf, 6, -1);
-	CHECK_RV(spi_rv, "spi_read_id");
 	spi_release_cs();
 	spi_delay();
 	return (spi_rv == 0) ? (spi_rx_buf[4] + (spi_rx_buf[5] << 8)) : -1;
@@ -195,10 +191,8 @@ void init_spi(void) {
 	HAL_Delay(1);
 	spi_set_chip(0xffffffff);
 	int spi_id = spi_read_id();
-	DebugLog("SPI flash chip 1 id %04x\r\n", spi_id);
 	spi_set_chip(0);
 	spi_id = spi_read_id();
-	DebugLog("SPI flash chip 0 id %04x\r\n", spi_id);
 }
 
 // main
@@ -331,7 +325,6 @@ static int spi_write_enable(void) {
 	spi_assert_cs();
 	spi_delay();
 	int spi_rv = HAL_SPI_TransmitReceive(&hspi2, (u8*)spi_tx_buf, (u8*)spi_rx_buf, 1, -1);
-	CHECK_RV(spi_rv, "spi_write_enable");
 	spi_release_cs();
 	spi_delay();
 	return spi_rv;
@@ -345,7 +338,6 @@ static int spi_wait_not_busy(const char* msg, void (*callback)(u8), u8 param) {
 	spi_assert_cs();
 
 	spi_rv = HAL_SPI_TransmitReceive(&hspi2, (u8*)spi_tx_buf, (u8*)spi_rx_buf, 1, -1);
-	CHECK_RV(spi_rv, "spi_waitnotbusy1");
 	spi_rx_buf[0] = 0xff;
 	while (spi_rx_buf[0] & 1) {
 
@@ -354,15 +346,11 @@ static int spi_wait_not_busy(const char* msg, void (*callback)(u8), u8 param) {
 
 		spi_rx_buf[0] = 0;
 		spi_rv = HAL_SPI_TransmitReceive(&hspi2, (u8*)spi_tx_buf, (u8*)spi_rx_buf, 1, -1);
-		CHECK_RV(spi_rv, "spi_waitnotbusy2");
 		if (spi_rv)
 			break;
 	}
 	spi_release_cs();
 	spi_delay();
-	int t = millis() - i;
-	if (t > 10)
-		DebugLog("flash write/erase operation [%s] took %dms\r\n", msg, t);
 	return spi_rv;
 }
 
@@ -371,18 +359,14 @@ int spi_erase64k(u32 addr, void (*callback)(u8), u8 param) {
 	spi_write_enable();
 	u8 spi_tx_buf[4] = {0xd8, addr >> 16, addr >> 8, addr};
 	u8 spi_rx_buf[4];
-	DebugLog("spi erase %d\r\n", addr);
 	spi_assert_cs();
 	spi_delay();
 	int spi_rv = HAL_SPI_TransmitReceive(&hspi2, (u8*)spi_tx_buf, (u8*)spi_rx_buf, 4, -1);
-	CHECK_RV(spi_rv, "spi_erase1");
 	spi_release_cs();
 	spi_delay();
 	if (spi_rv == 0)
 		spi_rv = spi_wait_not_busy("erase", callback, param);
-	else {
-		DebugLog("HAL_SPI_TransmitReceive returned %d in erase\r\n", spi_rv);
-	}
+
 	return spi_rv;
 }
 
@@ -397,7 +381,6 @@ int spi_write256(u32 addr) {
 
 	spi_delay();
 	int spi_rv = HAL_SPI_TransmitReceive(&hspi2, (u8*)spi_bit_tx, (u8*)spi_big_rx, 4 + 256, -1);
-	CHECK_RV(spi_rv, "spi_write256");
 
 	spi_release_cs();
 	spi_delay();
