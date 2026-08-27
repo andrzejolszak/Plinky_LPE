@@ -331,8 +331,8 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// read physical touches
 	u8 read_phase = read_touchstrips();
 
-	// PERF: 2us
-	// u32 stepTime = log_time_diff(frame_start, 0);
+	// PERF: 2us, 1finger=50, 4fingers=18
+	u32 stepTime = log_time_diff(frame_start, 0);
 
 	// once per touchstrip read cycle:
 	if (!read_phase) {
@@ -346,8 +346,8 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// pre-process audio
 	audio_pre(audio_out, audio_in);
 	
-	// PERF: 61us
-	// stepTime = log_time_diff(stepTime, 1);
+	// PERF: 61us, 60, 60
+	stepTime = log_time_diff(stepTime, 1);
 
 	// don't do anything else while calibrating
 	if (calib_mode)
@@ -363,8 +363,8 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// make sure preset ram is up to date
 	update_preset_ram();
 
-	// PERF: 1us
-	// stepTime = log_time_diff(stepTime, 2);
+	// PERF: 1us, 1, 1
+	stepTime = log_time_diff(stepTime, 2);
 
 	// u32 start = micros();
 
@@ -395,41 +395,41 @@ void plinky_codec_tick(u32* audio_out, u32* audio_in) {
 	// combine physical, latch, sequencer, arp touches
 	generate_string_touches();
 
-	// PERF: 40us
-	// stepTime = log_time_diff(stepTime, 4);
+	// PERF: 40us, (0=130 (from stepTime)), 140, 140
+	stepTime = log_time_diff(stepTime, 4);
 
 	// evaluate parameters and modulations
 	params_tick();
 
-	// PERF: 185us
-	// stepTime = log_time_diff(stepTime, 5);
+	// PERF: 185us, 145, 145
+	stepTime = log_time_diff(stepTime, 5);
 
 	// make sure sample and pattern ram is up to date
 	update_sample_ram();
 	update_pattern_ram();
 
-	// PERF: 6us
-	// stepTime = log_time_diff(stepTime, 6);
+	// PERF: 6us, 5, 5
+	stepTime = log_time_diff(stepTime, 6);
 
 	// generate the voices, based on touches and parameters
 	handle_synth_voices(audio_out);
 
-	// PERF: 1150us
-	// stepTime = log_time_diff(stepTime, 7);
+	// PERF: 1150us, (0=770), 890, 1340
+	stepTime = log_time_diff(stepTime, 7);
 
 	// restart spi loop if necessary
 	spi_tick();
 
-	// PERF: 1us
-	// stepTime = log_time_diff(stepTime, 8);
+	// PERF: 1us, 1, 1
+	stepTime = log_time_diff(stepTime, 8);
 
 	// apply audio effects and send result to output buffer
 	audio_post(audio_out, audio_in);
 
-	// PERF: 690us
-	// log_time_diff(stepTime, 9);
+	// PERF: 690us, 690, 690
+	log_time_diff(stepTime, 9);
 
-	// PERF: 2300us (2250us osc, 2500us wavetab)
+	// PERF: 2300us (2250us osc, 2500us wavetab), (0=1700), 2000, 2450
 	log_time_diff(frame_start, 10);
 }
 
