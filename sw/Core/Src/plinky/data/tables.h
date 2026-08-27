@@ -39,9 +39,7 @@ u16 SATURATEU16(s32 a) {
 		a = 65535;
 	return a;
 #else
-	int tmp;
-	asm("usat %0, %1, %2" : "=r"(tmp) : "I"(16), "r"(a));
-	return tmp;
+	return (u16)__USAT(a, 16);
 #endif
 }
 

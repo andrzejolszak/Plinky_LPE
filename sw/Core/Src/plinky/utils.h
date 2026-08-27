@@ -134,7 +134,7 @@ extern u32 clz(u32 val);
 #ifdef EMU
 #define SMUAD(o, a, b) o = (int)(((s16)(a)) * ((s16)(b)) + ((s16)(a >> 16)) * ((s16)(b >> 16)))
 #else
-#define SMUAD(o, a, b) asm("smuad %0, %1, %2" : "=r"(o) : "r"(a), "r"(b))
+#define SMUAD(o, a, b) o = __SMUAD(a, b)
 #endif
 
 #define USING_SAMPLER (cur_sample_info.samplelen != 0)

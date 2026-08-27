@@ -195,8 +195,7 @@ s32 Reverb2(s32 input, s16* buf) {
 		s32 shimo = shiml * ((SHIMMER_FADE_LEN - 1) - shimmerfade) + shimr * shimmerfade;
 #else
 		u32 a = STEREOPACK((SHIMMER_FADE_LEN - 1) - shimmerfade, shimmerfade);
-		s32 shimo;
-		asm("smuad %0, %1, %2" : "=r"(shimo) : "r"(a), "r"(shim));
+		s32 shimo = __SMUAD(a, shim);
 #endif
 		shimo >>= 15; // Divide by SHIMMER_FADE_LEN
 
@@ -352,7 +351,9 @@ void audio_post(u32* audio_out, u32* audio_in) {
 
 	// hpf params
 
+#ifdef EMU
 	static float power = 0.f;
+#endif
 	// at sample rate, lpf k 0.002 takes 10ms to go to half; .0006 takes 40ms; k=.0002 takes 100ms;
 	// at buffer rate, k=0.13 goes to half in 10ms; 0.013 goes to half in 100ms; 0.005 is 280ms
 

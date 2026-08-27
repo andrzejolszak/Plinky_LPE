@@ -78,9 +78,7 @@ static s32 SATURATE17(s32 a) {
 		a = 65535;
 	return a;
 #else
-	int tmp;
-	asm("ssat %0, %1, %2" : "=r"(tmp) : "I"(17), "r"(a));
-	return tmp;
+	return __SSAT(a, 17);
 #endif
 }
 

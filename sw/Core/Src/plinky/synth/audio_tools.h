@@ -19,9 +19,7 @@ u32 STEREOPACK(s16 l, s16 r) {
 #ifdef EMU
 	return ((u16)l) + (((u16)r) << 16);
 #else
-	s32 out;
-	asm("pkhbt %0, %1, %2, lsl #16" : "=r"(out) : "r"(l), "r"(r));
-	return out;
+	return __PKHBT(l, r, 16);
 #endif
 }
 
@@ -34,9 +32,7 @@ s16 SATURATE16(s32 a) {
 		a = 32767;
 	return a;
 #else
-	s32 tmp;
-	asm("ssat %0, %1, %2" : "=r"(tmp) : "I"(16), "r"(a));
-	return tmp;
+	return (s16)__SSAT(a, 16);
 #endif
 }
 
@@ -51,10 +47,9 @@ s16 LINEARINTERPDL(const s16* buf, int basei, int wobpos) { // read buf[basei-wo
 	// dual mul
 	return ((a0 * (0x1000 - wobpos) + a1 * wobpos)) >> 12;
 #else
-	s32 out;
 	u32 a = STEREOPACK(a1, a0);
 	u32 b = STEREOPACK(wobpos, 0x1000 - wobpos);
-	asm("smuad %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
+	s32 out = __SMUAD(a, b);
 	return out >> 12;
 #endif
 }
@@ -84,9 +79,7 @@ u32 STEREOADDSAT(u32 a, u32 b) {
 	STEREOUNPACK(b);
 	return STEREOPACK(SATURATE16(al + bl), SATURATE16(ar + br));
 #else
-	s32 out;
-	asm("qadd16 %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
-	return out;
+	return __QADD16(a, b);
 #endif
 }
 
@@ -97,9 +90,7 @@ u32 STEREOADDAVERAGE(u32 a, u32 b) {
 	STEREOUNPACK(b);
 	return STEREOPACK((al + bl) >> 1, (ar + br) >> 1);
 #else
-	s32 out;
-	asm("shadd16 %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
-	return out;
+	return __SHADD16(a, b);
 #endif
 }
 
@@ -112,10 +103,9 @@ s16 LINEARINTERPRV(const s16* buf, int basei, int wobpos) { // read buf[basei-wo
 #ifdef EMU
 	return ((a0 * (0x1000 - wobpos) + a1 * wobpos)) >> 12;
 #else
-	s32 out;
 	u32 a = STEREOPACK(a1, a0);
 	u32 b = STEREOPACK(wobpos, 0x1000 - wobpos);
-	asm("smuad %0, %1, %2" : "=r"(out) : "r"(a), "r"(b));
+	s32 out = __SMUAD(a, b);
 	return out >> 12;
 #endif
 }

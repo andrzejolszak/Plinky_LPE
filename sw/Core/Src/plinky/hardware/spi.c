@@ -332,7 +332,7 @@ static int spi_write_enable(void) {
 
 static int spi_wait_not_busy(const char* msg, void (*callback)(u8), u8 param) {
 	int spi_rv = 0;
-	int i = millis();
+	// int i = millis();
 	u8 spi_tx_buf[1] = {5};
 	u8 spi_rx_buf[1] = {23};
 	spi_assert_cs();
