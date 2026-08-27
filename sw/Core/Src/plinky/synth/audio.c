@@ -246,6 +246,7 @@ void audio_pre(u32* audio_out, u32* audio_in) {
 	static float dcl, dcr;
 	int ng = mini(256, noise_gate);
 	// dc remover from audio in, and peak detector while we're there.
+#pragma GCC unroll 2
 	for (int i = 0; i < SAMPLES_PER_TICK; ++i) {
 		u32 inp = audio_in[i];
 		if (inp == 0)
@@ -366,6 +367,7 @@ void audio_post(u32* audio_out, u32* audio_in) {
 	float a1 = 1.f / (1.f + g * (g + k));
 	float a2 = g * a1;
 
+#pragma GCC unroll 2
 	for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
 		u32 input = STEREOSIGMOID(audio_out[i]);
 		STEREOUNPACK(input);

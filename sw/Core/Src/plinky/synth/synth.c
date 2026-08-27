@@ -655,6 +655,7 @@ static void apply_sample_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, fl
 
 			spi_ready_for_sampler(grainidx);
 
+#pragma GCC unroll 2
 			for (int i = 0; i < SAMPLES_PER_TICK; ++i) {
 				int o0, o1;
 #ifdef EMU
@@ -1057,6 +1058,8 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 			sub_wave = sub_wave | ((8191 - sub_wave) << 16);
 			u8 table_id = osc_shape >> 12;
 			const s16* table1 = wavetable[table_id] + wavetable_octave_offset[shift1];
+
+#pragma GCC unroll 2
 			for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
 				phase1_diff += dd_phase1;
 				phase1 += phase1_diff;
@@ -1108,6 +1111,8 @@ static void apply_synth_lpg_noise(u8 voice_id, Voice* voice, float goal_lpg, flo
 		// == SUPERSAW & PULSE WAVE == //
 
 		else {
+
+#pragma GCC unroll 2
 			for (u8 i = 0; i < SAMPLES_PER_TICK; ++i) {
 				phase1_diff += dd_phase1;
 				phase1 += phase1_diff;

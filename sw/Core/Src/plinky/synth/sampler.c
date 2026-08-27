@@ -45,6 +45,7 @@ void sampler_recording_tick(u32* dst, u32* audioin) {
 		else {
 			const s16* asrc = (const s16*)audioin;
 			s16* adst = (s16*)dst;
+#pragma GCC unroll 2
 			for (int i = 0; i < SAMPLES_PER_TICK; ++i) {
 				s16 smp = *dldst++ = SATURATE16((((int)(asrc[0] + asrc[1])) * (int)(ext_gain_smoother.y2 / 2)) >> 14);
 #ifdef EMU
